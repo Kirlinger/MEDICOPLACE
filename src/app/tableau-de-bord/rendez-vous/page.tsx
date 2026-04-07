@@ -1,31 +1,25 @@
 'use client';
 
 import { useState } from 'react';
-import { Calendar, Clock, MapPin, Plus } from 'lucide-react';
-import { getStatusColor, getStatusLabel } from '@/lib/utils';
+import { Calendar, Plus, Inbox } from 'lucide-react';
 import Button from '@/components/ui/Button';
 import Input from '@/components/ui/Input';
-import type { Appointment } from '@/types';
-
-const appointments: Appointment[] = [
-  { id: '1', doctor: 'Dr. Sophie Martin', specialty: 'Médecine Générale', date: '2026-04-10', time: '10:00', status: 'confirmed', type: 'Cabinet' },
-  { id: '2', doctor: 'Dr. Pierre Leroy', specialty: 'Cardiologie', date: '2026-04-15', time: '14:30', status: 'pending', type: 'Téléconsultation' },
-  { id: '3', doctor: 'Dr. Amina El-Fassi', specialty: 'Cardiologie', date: '2026-03-20', time: '09:00', status: 'completed', type: 'Téléconsultation' },
-  { id: '4', doctor: 'Dr. Marc Dubois', specialty: 'Dermatologie', date: '2026-03-10', time: '11:30', status: 'cancelled', type: 'Cabinet' },
-];
 
 const specialties = ['Médecine Générale', 'Cardiologie', 'Dermatologie', 'Pédiatrie', 'Ophtalmologie', 'ORL'];
 
 export default function AppointmentsPage() {
   const [showForm, setShowForm] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
 
   const handleBook = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
+    // Appointment booking is not yet connected to a backend
     await new Promise((r) => setTimeout(r, 1000));
     setLoading(false);
     setShowForm(false);
+    setSubmitted(true);
   };
 
   return (
@@ -70,26 +64,19 @@ export default function AppointmentsPage() {
         </div>
       )}
 
-      <div className="space-y-3">
-        {appointments.map((apt) => (
-          <div key={apt.id} className="card-premium flex flex-col gap-4 p-5 sm:flex-row sm:items-center sm:justify-between">
-            <div className="flex items-start gap-4">
-              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-primary-50 text-primary-600">
-                <Calendar className="h-6 w-6" />
-              </div>
-              <div>
-                <h3 className="font-semibold text-gray-900">{apt.doctor}</h3>
-                <p className="text-sm text-gray-500">{apt.specialty}</p>
-                <div className="mt-2 flex flex-wrap gap-3 text-xs text-gray-400">
-                  <span className="flex items-center gap-1"><Calendar className="h-3.5 w-3.5" /> {apt.date}</span>
-                  <span className="flex items-center gap-1"><Clock className="h-3.5 w-3.5" /> {apt.time}</span>
-                  <span className="flex items-center gap-1"><MapPin className="h-3.5 w-3.5" /> {apt.type}</span>
-                </div>
-              </div>
-            </div>
-            <span className={`self-start rounded-full px-3 py-1 text-xs font-medium ${getStatusColor(apt.status)}`}>{getStatusLabel(apt.status)}</span>
-          </div>
-        ))}
+      {submitted && (
+        <div className="card-premium rounded-lg border border-green-200 bg-green-50 p-4 text-sm text-green-700">
+          Votre demande de rendez-vous a été enregistrée. La fonctionnalité de gestion des rendez-vous sera bientôt disponible.
+        </div>
+      )}
+
+      <div className="card-premium flex flex-col items-center justify-center py-12 text-center">
+        <Inbox className="mb-3 h-12 w-12 text-gray-300" />
+        <p className="text-gray-500">Aucun rendez-vous pour le moment.</p>
+        <p className="mt-1 text-sm text-gray-400">La gestion des rendez-vous sera disponible prochainement.</p>
+        <button onClick={() => setShowForm(true)} className="mt-4 inline-flex items-center gap-1.5 text-sm font-medium text-primary-600 hover:text-primary-700">
+          <Calendar className="h-4 w-4" /> Prendre un rendez-vous
+        </button>
       </div>
     </div>
   );

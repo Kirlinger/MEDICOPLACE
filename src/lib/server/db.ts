@@ -1,8 +1,8 @@
 /**
  * Supabase database client for server-side operations.
  * Uses the service role key for privileged operations (never exposed to client).
- * Falls back to a safe in-memory store when Supabase is not configured,
- * so the app can build and run in demo mode without a database.
+ * Falls back to an in-memory store when Supabase is not configured (development only).
+ * Users must register a real account before accessing any private area.
  */
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
 
@@ -27,7 +27,7 @@ export function isDatabaseConfigured(): boolean {
   return !!(supabaseUrl && supabaseServiceKey);
 }
 
-// ─── In-memory fallback store (development / demo mode) ───
+// ─── In-memory fallback store (development without Supabase) ───
 export interface InMemoryUser {
   id: string;
   email: string;

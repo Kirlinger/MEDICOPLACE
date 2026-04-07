@@ -1,22 +1,41 @@
 'use client';
 
 import { useAuth } from '@/lib/auth-context';
-import { Calendar, ShoppingBag, Clock, Heart, ArrowRight, CalendarCheck, TrendingUp } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { Calendar, ShoppingBag, Clock, TrendingUp, Inbox } from 'lucide-react';
 import Link from 'next/link';
-import { getStatusColor, getStatusLabel } from '@/lib/utils';
+import { apiRequest } from '@/lib/api-client';
+import { formatPrice } from '@/lib/utils';
 
-const upcomingAppointments = [
-  { id: '1', doctor: 'Dr. Sophie Martin', specialty: 'Médecine Générale', date: '2026-04-10', time: '10:00', status: 'confirmed' as const },
-  { id: '2', doctor: 'Dr. Pierre Leroy', specialty: 'Cardiologie', date: '2026-04-15', time: '14:30', status: 'pending' as const },
-];
-
-const recentOrders = [
-  { id: 'CMD-001', date: '2026-03-28', total: '350 Gdes', status: 'Livré' },
-  { id: 'CMD-002', date: '2026-04-01', total: '270 Gdes', status: 'En cours' },
-];
+interface Order {
+  id: string;
+  total: number;
+  status: string;
+  created_at: string;
+}
 
 export default function DashboardPage() {
   const { user } = useAuth();
+  const [orders, setOrders] = useState<Order[]>([]);
+  const [loadingOrders, setLoadingOrders] = useState(true);
+
+  useEffect(() => {
+    async function fetchOrders() {
+      try {
+        const { ok, data } = await apiRequest<{ orders: Order[] }>('/api/orders');
+        if (ok && data.orders) {
+          setOrders(data.orders);
+        }
+      } catch {
+        // Silently fail — user will see empty state
+      } finally {
+        setLoadingOrders(false);
+      }
+    }
+    fetchOrders();
+  }, []);
+
+  const recentOrders = orders.slice(0, 3);
 
   return (
     <div className="space-y-6">
@@ -25,12 +44,11 @@ export default function DashboardPage() {
         <p className="mt-1 text-gray-500">Bienvenue sur votre tableau de bord. Voici un résumé de votre activité.</p>
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {[
-          { icon: Calendar, label: 'Prochains RDV', value: '2', color: 'bg-blue-50 text-blue-600' },
-          { icon: ShoppingBag, label: 'Commandes', value: '5', color: 'bg-green-50 text-green-600' },
-          { icon: Clock, label: 'Consultations', value: '12', color: 'bg-purple-50 text-purple-600' },
-          { icon: Heart, label: 'Santé Score', value: '85%', color: 'bg-red-50 text-red-600' },
+          { icon: ShoppingBag, label: 'Commandes', value: loadingOrders ? '…' : String(orders.length), color: 'bg-green-50 text-green-600' },
+          { icon: Calendar, label: 'Rendez-vous', value: '—', color: 'bg-blue-50 text-blue-600' },
+          { icon: Clock, label: 'Consultations', value: '—', color: 'bg-purple-50 text-purple-600' },
         ].map((stat) => (
           <div key={stat.label} className="card-premium flex items-center gap-4 p-5">
             <div className={`flex h-12 w-12 items-center justify-center rounded-xl ${stat.color}`}><stat.icon className="h-6 w-6" /></div>
@@ -39,42 +57,29 @@ export default function DashboardPage() {
         ))}
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-2">
-        <div className="card-premium p-6">
-          <div className="mb-4 flex items-center justify-between">
-            <h2 className="text-lg font-semibold text-gray-900">Prochains rendez-vous</h2>
-            <Link href="/tableau-de-bord/rendez-vous" className="inline-flex items-center gap-1 text-sm font-medium text-primary-600 hover:text-primary-700">Voir tout <ArrowRight className="h-3.5 w-3.5" /></Link>
-          </div>
-          <div className="space-y-3">
-            {upcomingAppointments.map((apt) => (
-              <div key={apt.id} className="flex items-center justify-between rounded-lg border border-gray-100 p-4">
-                <div className="flex items-center gap-3">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary-50 text-primary-600"><CalendarCheck className="h-5 w-5" /></div>
-                  <div>
-                    <p className="text-sm font-medium text-gray-900">{apt.doctor}</p>
-                    <p className="text-xs text-gray-500">{apt.specialty} • {apt.date} à {apt.time}</p>
-                  </div>
-                </div>
-                <span className={`rounded-full px-2.5 py-1 text-xs font-medium ${getStatusColor(apt.status)}`}>{getStatusLabel(apt.status)}</span>
-              </div>
-            ))}
-          </div>
+      <div className="card-premium p-6">
+        <div className="mb-4 flex items-center justify-between">
+          <h2 className="text-lg font-semibold text-gray-900">Commandes récentes</h2>
+          <Link href="/tableau-de-bord/historique" className="inline-flex items-center gap-1 text-sm font-medium text-primary-600 hover:text-primary-700">Voir tout</Link>
         </div>
-
-        <div className="card-premium p-6">
-          <div className="mb-4 flex items-center justify-between">
-            <h2 className="text-lg font-semibold text-gray-900">Commandes récentes</h2>
-            <Link href="/tableau-de-bord/historique" className="inline-flex items-center gap-1 text-sm font-medium text-primary-600 hover:text-primary-700">Voir tout <ArrowRight className="h-3.5 w-3.5" /></Link>
+        {loadingOrders ? (
+          <div className="flex items-center justify-center py-8"><div className="h-6 w-6 animate-spin rounded-full border-2 border-primary-200 border-t-primary-600" /></div>
+        ) : recentOrders.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-8 text-center">
+            <Inbox className="mb-3 h-10 w-10 text-gray-300" />
+            <p className="text-sm text-gray-500">Aucune commande pour le moment.</p>
+            <Link href="/boutique" className="mt-2 text-sm font-medium text-primary-600 hover:text-primary-700">Découvrir la boutique</Link>
           </div>
+        ) : (
           <div className="space-y-3">
             {recentOrders.map((order) => (
               <div key={order.id} className="flex items-center justify-between rounded-lg border border-gray-100 p-4">
-                <div><p className="text-sm font-medium text-gray-900">{order.id}</p><p className="text-xs text-gray-500">{order.date}</p></div>
-                <div className="text-right"><p className="text-sm font-semibold text-gray-900">{order.total}</p><p className="text-xs text-gray-500">{order.status}</p></div>
+                <div><p className="text-sm font-medium text-gray-900">CMD-{order.id.substring(0, 8).toUpperCase()}</p><p className="text-xs text-gray-500">{new Date(order.created_at).toLocaleDateString('fr-FR')}</p></div>
+                <div className="text-right"><p className="text-sm font-semibold text-gray-900">{formatPrice(order.total)}</p><p className="text-xs text-gray-500">{order.status}</p></div>
               </div>
             ))}
           </div>
-        </div>
+        )}
       </div>
 
       <div className="card-premium p-6">
