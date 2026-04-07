@@ -8,10 +8,7 @@ const values = [
 ];
 
 const team = [
-  { name: 'Dr. Marie-Claire Joseph', role: 'Directrice Médicale', desc: "Spécialiste en médecine interne avec 15 ans d'expérience hospitalière en Haïti." },
-  { name: 'Jean-Baptiste Pierre', role: 'Directeur Technique', desc: "Expert en technologies de santé et en systèmes d'information médicale." },
-  { name: 'Dr. Farah Étienne', role: 'Responsable Téléconsultation', desc: 'Pionnière de la télémédecine en Haïti, cardiologue de formation.' },
-  { name: 'Stéphane Louis', role: 'Responsable Pharmacie', desc: 'Pharmacien diplômé avec une expertise en e-commerce santé.' },
+  { name: 'Dr Don Ismé Ishama LUBÉRISSE', role: 'Fondateur & Directeur', desc: 'Médecin engagé pour améliorer l\'accès aux soins en Haïti grâce à l\'innovation numérique.' },
 ];
 
 export default function AboutPage() {
@@ -82,15 +79,15 @@ export default function AboutPage() {
             <span className="mb-3 inline-block text-sm font-semibold uppercase tracking-wider text-primary-600">Notre équipe</span>
             <h2 className="text-3xl font-bold text-secondary-900">Des experts passionnés par la santé</h2>
           </div>
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="flex justify-center">
             {team.map((member) => (
-              <div key={member.name} className="card-premium overflow-hidden">
+              <div key={member.name} className="card-premium overflow-hidden w-full max-w-sm">
                 <div className="flex h-48 items-center justify-center bg-gradient-to-b from-primary-50 to-primary-100">
                   <div className="flex h-20 w-20 items-center justify-center rounded-full bg-white text-2xl font-bold text-primary-600 shadow-sm">
-                    {member.name.split(' ').map((n) => n[0]).join('')}
+                    {member.name.split(' ').filter((n) => n[0] === n[0].toUpperCase()).map((n) => n[0]).join('')}
                   </div>
                 </div>
-                <div className="p-5">
+                <div className="p-5 text-center">
                   <h3 className="font-semibold text-gray-900">{member.name}</h3>
                   <p className="mb-2 text-sm font-medium text-primary-600">{member.role}</p>
                   <p className="text-sm text-gray-500">{member.desc}</p>
@@ -98,6 +95,7 @@ export default function AboutPage() {
               </div>
             ))}
           </div>
+          <p className="mt-8 text-center text-base text-gray-500">D&apos;autres spécialistes seront disponibles sous peu.</p>
         </div>
       </section>
     </>
