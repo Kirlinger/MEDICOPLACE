@@ -1,7 +1,12 @@
 import type { NextConfig } from "next";
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
-const supabaseDomain = supabaseUrl ? new URL(supabaseUrl).hostname : '';
+let supabaseDomain = '';
+try {
+  if (supabaseUrl) supabaseDomain = new URL(supabaseUrl).hostname;
+} catch {
+  // Invalid URL — ignore, don't add to CSP
+}
 
 const securityHeaders = [
   {
@@ -33,6 +38,14 @@ const securityHeaders = [
     value: '1; mode=block',
   },
   {
+    key: 'Cross-Origin-Opener-Policy',
+    value: 'same-origin',
+  },
+  {
+    key: 'Cross-Origin-Resource-Policy',
+    value: 'same-origin',
+  },
+  {
     key: 'Content-Security-Policy',
     value: [
       "default-src 'self'",
@@ -45,6 +58,7 @@ const securityHeaders = [
       "base-uri 'self'",
       "form-action 'self'",
       "object-src 'none'",
+      "upgrade-insecure-requests",
     ].join('; '),
   },
 ];

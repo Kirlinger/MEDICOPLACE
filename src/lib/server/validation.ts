@@ -61,6 +61,24 @@ export function sanitize(input: unknown, maxLength = 500): string {
   return input.trim().slice(0, maxLength);
 }
 
+/** Validate a date of birth (must be reasonable age) */
+export function isValidDateOfBirth(dateStr: string): boolean {
+  if (!dateStr || typeof dateStr !== 'string') return true; // optional field
+  const trimmed = dateStr.trim();
+  if (!trimmed) return true;
+  // Must match YYYY-MM-DD
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(trimmed)) return false;
+  const date = new Date(trimmed);
+  if (isNaN(date.getTime())) return false;
+  const now = new Date();
+  // Must not be in the future
+  if (date > now) return false;
+  // Must be at most 150 years old
+  const minDate = new Date(now.getFullYear() - 150, now.getMonth(), now.getDate());
+  if (date < minDate) return false;
+  return true;
+}
+
 /** Generic error response (never expose internal details) */
 export function safeError(message: string, status = 400): Response {
   return Response.json({ error: message }, { status });

@@ -7,7 +7,8 @@
 import { NextResponse, NextRequest } from 'next/server';
 import { jwtVerify } from 'jose';
 
-const JWT_SECRET = new TextEncoder().encode(process.env.JWT_SECRET || 'dev-secret-change-in-production-must-be-32-chars!!');
+const JWT_SECRET_RAW = process.env.JWT_SECRET || '';
+const JWT_SECRET = new TextEncoder().encode(JWT_SECRET_RAW || 'dev-secret-change-in-production-must-be-32-chars!!');
 const SESSION_COOKIE = 'medicoplace_session';
 const CSRF_COOKIE = 'medicoplace_csrf';
 

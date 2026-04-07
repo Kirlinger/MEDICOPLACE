@@ -7,7 +7,15 @@ import { SignJWT, jwtVerify } from 'jose';
 import { cookies } from 'next/headers';
 
 const SALT_ROUNDS = 12;
-const JWT_SECRET = new TextEncoder().encode(process.env.JWT_SECRET || 'dev-secret-change-in-production-must-be-32-chars!!');
+const JWT_SECRET_RAW = process.env.JWT_SECRET || '';
+const JWT_SECRET = new TextEncoder().encode(JWT_SECRET_RAW || 'dev-secret-change-in-production-must-be-32-chars!!');
+
+/** Call at request time to enforce production secret configuration */
+export function assertProductionSecrets(): void {
+  if (process.env.NODE_ENV === 'production' && !process.env.JWT_SECRET) {
+    throw new Error('FATAL: JWT_SECRET environment variable must be set in production');
+  }
+}
 const SESSION_COOKIE = 'medicoplace_session';
 const SESSION_MAX_AGE = 30 * 60; // 30 minutes in seconds
 

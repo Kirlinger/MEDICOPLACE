@@ -52,37 +52,34 @@ export default function CheckoutPage() {
     setLoading(true);
 
     try {
-      if (isAuthenticated) {
-        // Submit order via API
-        const { ok, data } = await apiRequest<{ success?: boolean; orderId?: string; error?: string }>(
-          '/api/orders',
-          {
-            method: 'POST',
-            body: {
-              items: items.map((item) => ({
-                id: item.id,
-                name: item.name,
-                quantity: item.quantity,
-                price: item.price,
-              })),
-              shippingAddress: form,
-            },
-          }
-        );
+      // All orders must go through the server-side API
+      if (!isAuthenticated) {
+        setError('Veuillez vous connecter pour finaliser votre commande.');
+        return;
+      }
 
-        if (ok && data.orderId) {
-          setOrderId('CMD-' + data.orderId.substring(0, 8).toUpperCase());
-          clearCart();
-          setOrderPlaced(true);
-        } else {
-          setError(data.error || 'Erreur lors de la création de la commande.');
+      const { ok, data } = await apiRequest<{ success?: boolean; orderId?: string; error?: string }>(
+        '/api/orders',
+        {
+          method: 'POST',
+          body: {
+            items: items.map((item) => ({
+              id: item.id,
+              name: item.name,
+              quantity: item.quantity,
+              price: item.price,
+            })),
+            shippingAddress: form,
+          },
         }
-      } else {
-        // Guest checkout — client-side only
-        await new Promise((resolve) => setTimeout(resolve, 1500));
-        setOrderId('CMD-' + crypto.randomUUID().substring(0, 8).toUpperCase());
+      );
+
+      if (ok && data.orderId) {
+        setOrderId('CMD-' + data.orderId.substring(0, 8).toUpperCase());
         clearCart();
         setOrderPlaced(true);
+      } else {
+        setError(data.error || 'Erreur lors de la création de la commande.');
       }
     } catch {
       setError('Erreur de connexion. Veuillez réessayer.');

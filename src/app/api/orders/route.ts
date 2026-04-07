@@ -1,6 +1,6 @@
 /**
- * POST /api/orders
- * Create a new order with server-side validation.
+ * GET  /api/orders  — Fetch authenticated user's orders
+ * POST /api/orders  — Create a new order with server-side validation
  */
 import { NextRequest } from 'next/server';
 import { v4 as uuidv4 } from 'uuid';
@@ -8,6 +8,49 @@ import { getClientIp, applyRateLimit, requireCsrf, requireAuth } from '@/lib/ser
 import { isValidName, isValidPhone, isValidAddress, isValidQuantity, sanitize, safeError } from '@/lib/server/validation';
 import { getSupabaseAdmin, isDatabaseConfigured, memoryStore, InMemoryOrder } from '@/lib/server/db';
 import { logAuditEvent } from '@/lib/server/audit-log';
+
+/** GET /api/orders — list orders for authenticated user */
+export async function GET(request: NextRequest) {
+  const ip = getClientIp(request);
+
+  const rateLimitError = applyRateLimit(ip, 'orders:get', 'api');
+  if (rateLimitError) return rateLimitError;
+
+  const authResult = await requireAuth();
+  if (authResult.error) return authResult.error;
+  const { session } = authResult;
+
+  if (isDatabaseConfigured()) {
+    const supabase = getSupabaseAdmin()!;
+    const { data: orders, error } = await supabase
+      .from('orders')
+      .select('id, items, total, shipping, status, payment_method, payment_status, created_at')
+      .eq('user_id', session.userId)
+      .order('created_at', { ascending: false })
+      .limit(50);
+
+    if (error) {
+      return safeError('Erreur lors de la récupération des commandes.', 500);
+    }
+
+    return Response.json({ orders: orders || [] }, {
+      headers: { 'Cache-Control': 'no-store, no-cache, must-revalidate' },
+    });
+  }
+
+  // In-memory fallback
+  const orders = memoryStore.orders
+    .filter((o) => o.user_id === session.userId)
+    .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+    .slice(0, 50)
+    .map(({ id, items, total, shipping, status, payment_method, payment_status, created_at }) => ({
+      id, items, total, shipping, status, payment_method, payment_status, created_at,
+    }));
+
+  return Response.json({ orders }, {
+    headers: { 'Cache-Control': 'no-store, no-cache, must-revalidate' },
+  });
+}
 
 export async function POST(request: NextRequest) {
   const ip = getClientIp(request);

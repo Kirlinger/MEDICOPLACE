@@ -1,13 +1,16 @@
 'use client';
 
-import { useState, FormEvent } from 'react';
+import { useState, FormEvent, Suspense } from 'react';
 import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
 import { Lock, Plus, CheckCircle, AlertCircle } from 'lucide-react';
 import { checkPasswordStrength, passwordsMatch } from '@/lib/validation';
 import Input from '@/components/ui/Input';
 import Button from '@/components/ui/Button';
 
-export default function ResetPasswordPage() {
+function ResetPasswordForm() {
+  const searchParams = useSearchParams();
+  const token = searchParams.get('token') || '';
   const [loading, setLoading] = useState(false);
   const [done, setDone] = useState(false);
   const [password, setPassword] = useState('');
@@ -20,6 +23,11 @@ export default function ResetPasswordPage() {
     e.preventDefault();
     setError('');
 
+    if (!token) {
+      setError('Lien de réinitialisation invalide. Veuillez en demander un nouveau.');
+      return;
+    }
+
     if (!strength.isValid) {
       setError('Votre mot de passe ne remplit pas tous les critères de sécurité.');
       return;
@@ -31,9 +39,33 @@ export default function ResetPasswordPage() {
     }
 
     setLoading(true);
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-    setDone(true);
-    setLoading(false);
+    try {
+      const csrfMatch = document.cookie.match(/medicoplace_csrf=([^;]+)/);
+      const csrfToken = csrfMatch ? csrfMatch[1] : '';
+      const response = await fetch('/api/auth/reset-password', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(csrfToken ? { 'x-csrf-token': csrfToken } : {}),
+        },
+        body: JSON.stringify({ token, password }),
+        credentials: 'same-origin',
+      });
+
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        setDone(true);
+      } else if (response.status === 429) {
+        setError('Trop de tentatives. Veuillez patienter quelques minutes.');
+      } else {
+        setError(data.error || 'Erreur lors de la réinitialisation du mot de passe.');
+      }
+    } catch {
+      setError('Erreur de connexion. Veuillez réessayer.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -92,5 +124,13 @@ export default function ResetPasswordPage() {
         </div>
       </div>
     </section>
+  );
+}
+
+export default function ResetPasswordPage() {
+  return (
+    <Suspense fallback={<div className="flex min-h-[60vh] items-center justify-center"><div className="h-8 w-8 animate-spin rounded-full border-4 border-primary-200 border-t-primary-600" /></div>}>
+      <ResetPasswordForm />
+    </Suspense>
   );
 }

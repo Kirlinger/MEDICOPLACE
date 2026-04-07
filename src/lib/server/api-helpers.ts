@@ -6,6 +6,12 @@ import { checkRateLimit, RATE_LIMITS } from './rate-limit';
 import { validateCsrf } from './csrf';
 import { getSession } from './auth';
 
+/** Headers that should be applied to all API responses with sensitive data */
+export const SENSITIVE_HEADERS: Record<string, string> = {
+  'Cache-Control': 'no-store, no-cache, must-revalidate',
+  'Pragma': 'no-cache',
+};
+
 /** Extract client IP from request headers */
 export function getClientIp(request: NextRequest): string {
   return (

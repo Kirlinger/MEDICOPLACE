@@ -4,13 +4,14 @@
  */
 import { NextRequest } from 'next/server';
 import { v4 as uuidv4 } from 'uuid';
-import { hashPassword, createSessionToken, setSessionCookie } from '@/lib/server/auth';
+import { hashPassword, createSessionToken, setSessionCookie, assertProductionSecrets } from '@/lib/server/auth';
 import { isValidEmail, isValidName, isValidPhone, isStrongPassword, sanitize, safeError } from '@/lib/server/validation';
 import { getSupabaseAdmin, isDatabaseConfigured, memoryStore, InMemoryUser } from '@/lib/server/db';
 import { getClientIp, applyRateLimit, requireCsrf } from '@/lib/server/api-helpers';
 import { logAuditEvent } from '@/lib/server/audit-log';
 
 export async function POST(request: NextRequest) {
+  assertProductionSecrets();
   const ip = getClientIp(request);
 
   // Rate limit
@@ -119,5 +120,7 @@ export async function POST(request: NextRequest) {
   return Response.json({
     success: true,
     user: { id: userId, firstName, lastName, email, phone },
+  }, {
+    headers: { 'Cache-Control': 'no-store, no-cache, must-revalidate' },
   });
 }

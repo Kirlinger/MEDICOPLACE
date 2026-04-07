@@ -23,9 +23,29 @@ export default function ForgotPasswordPage() {
     }
 
     setLoading(true);
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-    setSent(true);
-    setLoading(false);
+    try {
+      const csrfMatch = document.cookie.match(/medicoplace_csrf=([^;]+)/);
+      const csrfToken = csrfMatch ? csrfMatch[1] : '';
+      const response = await fetch('/api/auth/forgot-password', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(csrfToken ? { 'x-csrf-token': csrfToken } : {}),
+        },
+        body: JSON.stringify({ email }),
+        credentials: 'same-origin',
+      });
+      if (response.status === 429) {
+        setError('Trop de tentatives. Veuillez patienter quelques minutes.');
+      } else {
+        setSent(true);
+      }
+    } catch {
+      // Still show success to prevent enumeration
+      setSent(true);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (

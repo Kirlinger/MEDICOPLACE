@@ -4,7 +4,7 @@
  */
 import { NextRequest } from 'next/server';
 import { getClientIp, applyRateLimit, requireCsrf, requireAuth } from '@/lib/server/api-helpers';
-import { isValidName, isValidEmail, isValidPhone, sanitize, safeError } from '@/lib/server/validation';
+import { isValidName, isValidEmail, isValidPhone, isValidDateOfBirth, sanitize, safeError } from '@/lib/server/validation';
 import { getSupabaseAdmin, isDatabaseConfigured, memoryStore } from '@/lib/server/db';
 import { logAuditEvent } from '@/lib/server/audit-log';
 
@@ -42,6 +42,7 @@ export async function PATCH(request: NextRequest) {
   if (!isValidName(lastName)) return safeError('Nom invalide.');
   if (!isValidEmail(email)) return safeError('Email invalide.');
   if (phone && !isValidPhone(phone)) return safeError('Téléphone invalide.');
+  if (dateOfBirth && !isValidDateOfBirth(dateOfBirth)) return safeError('Date de naissance invalide.');
 
   const now = new Date().toISOString();
 

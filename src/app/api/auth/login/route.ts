@@ -3,7 +3,7 @@
  * Authenticate a user with email/password, set session cookie.
  */
 import { NextRequest } from 'next/server';
-import { verifyPassword, createSessionToken, setSessionCookie } from '@/lib/server/auth';
+import { verifyPassword, createSessionToken, setSessionCookie, assertProductionSecrets } from '@/lib/server/auth';
 import { isValidEmail, sanitize, safeError } from '@/lib/server/validation';
 import { getSupabaseAdmin, isDatabaseConfigured, memoryStore } from '@/lib/server/db';
 import { getClientIp, applyRateLimit, requireCsrf } from '@/lib/server/api-helpers';
@@ -16,6 +16,7 @@ const AUTH_ERROR = 'Email ou mot de passe incorrect.';
 const DUMMY_HASH = '$2b$12$ObFvU.iDFSs4V4tJ9KnBvevHPDdIBHLvii3pASOXZjccnePMxpuzq';
 
 export async function POST(request: NextRequest) {
+  assertProductionSecrets();
   const ip = getClientIp(request);
 
   // Rate limit (strict for auth)
@@ -112,5 +113,7 @@ export async function POST(request: NextRequest) {
   return Response.json({
     success: true,
     user: { id: userId, firstName, lastName, email, phone },
+  }, {
+    headers: { 'Cache-Control': 'no-store, no-cache, must-revalidate' },
   });
 }

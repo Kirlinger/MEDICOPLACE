@@ -60,5 +60,10 @@ export async function GET() {
     }
   }
 
-  return Response.json({ user });
+  return Response.json({ user }, {
+    headers: {
+      'Cache-Control': 'no-store, no-cache, must-revalidate',
+      'Pragma': 'no-cache',
+    },
+  });
 }
