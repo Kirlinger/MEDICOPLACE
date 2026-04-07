@@ -37,6 +37,9 @@ yarn-error.log*
 # vercel
 .vercel
 
+# development data store (in-memory fallback persistence)
+.medicoplace-dev-store.json
+
 # typescript
 *.tsbuildinfo
 next-env.d.ts

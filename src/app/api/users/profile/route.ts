@@ -94,6 +94,7 @@ export async function PATCH(request: NextRequest) {
       user.date_of_birth = dateOfBirth;
       user.address = address;
       user.updated_at = now;
+      memoryStore.persist();
     }
   }
 

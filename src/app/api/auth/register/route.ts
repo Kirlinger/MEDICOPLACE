@@ -101,6 +101,7 @@ export async function POST(request: NextRequest) {
       updated_at: now,
     };
     memoryStore.users.push(newUser);
+    memoryStore.persist();
   }
 
   // Create session
