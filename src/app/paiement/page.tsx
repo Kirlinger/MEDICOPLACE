@@ -41,7 +41,7 @@ export default function CheckoutPage() {
       return;
     }
 
-    if (!isValidPhone(form.phone) || !form.phone.trim()) {
+    if (!isValidPhone(form.phone, true)) {
       setError('Veuillez entrer un numéro de téléphone valide (+509 XX XX XXXX).');
       return;
     }

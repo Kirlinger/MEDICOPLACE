@@ -16,6 +16,11 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 const SESSION_TIMEOUT_MS = 30 * 60 * 1000; // 30 minutes of inactivity
+// Production lockout constants — used when real backend auth is integrated
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const MAX_LOGIN_ATTEMPTS = 5;
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const LOCKOUT_DURATION_MS = 5 * 60 * 1000; // 5 minutes
 
 const demoUser: User = {
   id: '1',
@@ -82,7 +87,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     // Simulate network delay (constant time to prevent timing attacks)
     await new Promise((resolve) => setTimeout(resolve, 800));
 
-    // Demo: accept the login (in production, this would call a backend)
+    // Demo mode: all logins succeed. In production, a failed login would:
+    // 1. Increment loginAttempts
+    // 2. If loginAttempts >= MAX_LOGIN_ATTEMPTS, set lockout
+    // Example for production backend integration:
+    // const newAttempts = loginAttempts + 1;
+    // setLoginAttempts(newAttempts);
+    // if (newAttempts >= MAX_LOGIN_ATTEMPTS) {
+    //   setLockoutUntil(Date.now() + LOCKOUT_DURATION_MS);
+    //   setIsLocked(true);
+    //   return { success: false, error: 'Trop de tentatives. Compte verrouillé pour 5 minutes.' };
+    // }
+
     setUser(demoUser);
     setLoginAttempts(0);
     setLockoutUntil(null);

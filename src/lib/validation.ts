@@ -1,17 +1,9 @@
 /**
  * Input validation and sanitization utilities for MEDICOPLACE.
  * Provides client-side protection against XSS, injection, and malformed data.
+ * Note: React escapes rendered values by default, so HTML sanitization is not
+ * needed for values displayed via JSX. These validators focus on format checking.
  */
-
-/** Sanitize a string by escaping HTML entities to prevent XSS */
-export function sanitizeInput(input: string): string {
-  return input
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#x27;');
-}
 
 /** Validate email format */
 export function isValidEmail(email: string): boolean {
@@ -20,8 +12,8 @@ export function isValidEmail(email: string): boolean {
 }
 
 /** Validate Haitian phone number format (+509 XX XX XXXX) */
-export function isValidPhone(phone: string): boolean {
-  if (!phone || phone.trim() === '') return true; // optional field
+export function isValidPhone(phone: string, required = false): boolean {
+  if (!phone || phone.trim() === '') return !required;
   const phoneRegex = /^\+?509\s?\d{2}\s?\d{2}\s?\d{4}$/;
   return phoneRegex.test(phone.trim().replace(/-/g, ''));
 }
