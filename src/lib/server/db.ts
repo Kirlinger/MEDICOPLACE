@@ -107,6 +107,9 @@ class InMemoryStore {
   /**
    * Persist user and order data to disk so it survives server restarts.
    * Audit logs are intentionally excluded (ephemeral in dev).
+   *
+   * NOTE: The persisted file contains password hashes and PII.
+   * It is excluded from git via .gitignore and must never be shared.
    */
   persist(): void {
     try {
@@ -116,8 +119,8 @@ class InMemoryStore {
         2
       );
       fs.writeFileSync(DEV_STORE_PATH, data, 'utf-8');
-    } catch {
-      // Best-effort — silent fail if disk write is not possible
+    } catch (err) {
+      console.warn('[MEDICOPLACE] Failed to persist dev store to disk:', err);
     }
   }
 
@@ -132,8 +135,8 @@ class InMemoryStore {
       };
       if (Array.isArray(data.users)) this.users = data.users;
       if (Array.isArray(data.orders)) this.orders = data.orders;
-    } catch {
-      // Corrupted or unreadable file — start fresh
+    } catch (err) {
+      console.warn('[MEDICOPLACE] Failed to load dev store from disk (starting fresh):', err);
     }
   }
 }
