@@ -118,6 +118,11 @@ export async function POST(request: NextRequest) {
     }
 
     const data = await response.json();
+    const paymentToken = data.payment_token?.token;
+
+    if (!paymentToken) {
+      return safeError('Réponse de paiement invalide.', 502);
+    }
 
     // Audit log
     await logAuditEvent({
@@ -131,8 +136,8 @@ export async function POST(request: NextRequest) {
 
     return Response.json({
       success: true,
-      paymentUrl: data.payment_url || `${baseUrl}/Moncash-pay/Redirect?token=${data.payment_token?.token}`,
-      transactionId: data.payment_token?.token,
+      paymentUrl: data.payment_url || `${baseUrl}/Moncash-pay/Redirect?token=${paymentToken}`,
+      transactionId: paymentToken,
     });
   } catch {
     return safeError('Erreur de connexion au service de paiement.', 502);

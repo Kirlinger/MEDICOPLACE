@@ -12,6 +12,9 @@ import { logAuditEvent } from '@/lib/server/audit-log';
 // Generic error to prevent user enumeration
 const AUTH_ERROR = 'Email ou mot de passe incorrect.';
 
+// Pre-generated bcrypt hash for constant-time comparison on non-existent users
+const DUMMY_HASH = '$2b$12$ObFvU.iDFSs4V4tJ9KnBvevHPDdIBHLvii3pASOXZjccnePMxpuzq';
+
 export async function POST(request: NextRequest) {
   const ip = getClientIp(request);
 
@@ -53,8 +56,8 @@ export async function POST(request: NextRequest) {
       .maybeSingle();
 
     if (!user) {
-      // Constant-time: hash a dummy password to prevent timing attacks
-      await verifyPassword(password, '$2a$12$dummyhashfortiminganddummyhash');
+      // Constant-time: hash against a real bcrypt hash to prevent timing attacks
+      await verifyPassword(password, DUMMY_HASH);
       return safeError(AUTH_ERROR, 401);
     }
 
@@ -68,7 +71,7 @@ export async function POST(request: NextRequest) {
     // In-memory fallback
     const user = memoryStore.findUserByEmail(email);
     if (!user) {
-      await verifyPassword(password, '$2a$12$dummyhashfortiminganddummyhash');
+      await verifyPassword(password, DUMMY_HASH);
       return safeError(AUTH_ERROR, 401);
     }
 

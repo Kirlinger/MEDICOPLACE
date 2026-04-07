@@ -71,7 +71,7 @@ export default function CheckoutPage() {
         );
 
         if (ok && data.orderId) {
-          setOrderId(data.orderId.substring(0, 8).toUpperCase());
+          setOrderId('CMD-' + data.orderId.substring(0, 8).toUpperCase());
           clearCart();
           setOrderPlaced(true);
         } else {
