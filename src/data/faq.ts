@@ -27,7 +27,7 @@ export const faqs: FAQ[] = [
   },
   {
     question: 'Quels modes de paiement acceptez-vous ?',
-    answer: "Nous acceptons les cartes bancaires (Visa, Mastercard), les transferts MonCash, et le paiement en plusieurs fois pour les commandes supérieures à 5 000 Gdes. Toutes les transactions sont sécurisées par protocole SSL.",
+    answer: "Nous acceptons les cartes bancaires (Visa, Mastercard). Les paiements via MonCash et NatCash seront disponibles bientôt. Le paiement en plusieurs fois est proposé pour les commandes supérieures à 5 000 Gdes. Toutes les transactions sont sécurisées par protocole SSL.",
   },
   {
     question: 'Comment contacter le service client ?',

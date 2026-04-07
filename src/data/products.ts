@@ -12,7 +12,7 @@ export const products: Product[] = [
     rating: 4.9,
     reviews: 312,
     inStock: true,
-    badge: 'Bestseller',
+    badge: 'Meilleure vente',
   },
   {
     id: '2',
@@ -60,7 +60,7 @@ export const products: Product[] = [
     rating: 4.8,
     reviews: 389,
     inStock: true,
-    badge: 'Top Qualité',
+    badge: 'Qualité supérieure',
   },
   {
     id: '6',
@@ -72,7 +72,7 @@ export const products: Product[] = [
     rating: 4.5,
     reviews: 142,
     inStock: true,
-    badge: 'Nouveau',
+    badge: 'Nouveauté',
   },
   {
     id: '7',

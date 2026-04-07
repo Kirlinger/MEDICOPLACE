@@ -18,9 +18,9 @@ const demoUser: User = {
   firstName: 'Marie',
   lastName: 'Dupont',
   email: 'marie.dupont@email.com',
-  phone: '06 12 34 56 78',
+  phone: '+509 34 12 5678',
   dateOfBirth: '1990-03-15',
-  address: '12 Rue de la Santé, 75013 Paris',
+  address: 'Pétion-Ville, Port-au-Prince',
 };
 
 export function AuthProvider({ children }: { children: ReactNode }) {

@@ -36,7 +36,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
         <div className="grid gap-12 lg:grid-cols-2">
           <div className="relative aspect-square overflow-hidden rounded-2xl bg-gray-50">
             {product.badge && <span className="absolute top-4 left-4 z-10 rounded-full bg-primary-600 px-4 py-1.5 text-sm font-semibold text-white">{product.badge}</span>}
-            <Image src={product.image} alt={product.name} fill className="object-contain p-12" />
+            <Image src={product.image} alt={product.name} fill sizes="(max-width: 1024px) 100vw, 50vw" loading="lazy" className="object-contain p-12" />
           </div>
           <div className="flex flex-col justify-center">
             <span className="mb-2 text-sm font-medium uppercase tracking-wider text-primary-600">{product.category}</span>

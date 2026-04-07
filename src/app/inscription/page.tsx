@@ -43,7 +43,7 @@ export default function InscriptionPage() {
               <Input label="Nom" placeholder="Votre nom" icon={<User className="h-4 w-4" />} value={form.lastName} onChange={(e) => setForm({ ...form, lastName: e.target.value })} required />
             </div>
             <Input label="Email" type="email" placeholder="votre@email.com" icon={<Mail className="h-4 w-4" />} value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} required />
-            <Input label="Téléphone" type="tel" placeholder="06 12 34 56 78" icon={<Phone className="h-4 w-4" />} value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} />
+            <Input label="Téléphone" type="tel" placeholder="+509 00 00 0000" icon={<Phone className="h-4 w-4" />} value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} />
             <Input label="Mot de passe" type="password" placeholder="••••••••" icon={<Lock className="h-4 w-4" />} value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} required />
             <Input label="Confirmer le mot de passe" type="password" placeholder="••••••••" icon={<Lock className="h-4 w-4" />} value={form.confirmPassword} onChange={(e) => setForm({ ...form, confirmPassword: e.target.value })} required />
             <Button type="submit" fullWidth loading={loading} size="lg">Créer mon compte</Button>

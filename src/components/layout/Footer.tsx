@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { Plus, Mail, Phone, MapPin } from 'lucide-react';
+import { Plus } from 'lucide-react';
 
 export default function Footer() {
   return (
@@ -43,20 +43,10 @@ export default function Footer() {
           </div>
           <div>
             <h3 className="mb-4 text-sm font-semibold uppercase tracking-wider text-white">Contact</h3>
-            <ul className="space-y-3">
-              <li className="flex items-start gap-3">
-                <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-primary-400" />
-                <span className="text-sm text-gray-400">12 Avenue de la Santé, 75013 Paris, France</span>
-              </li>
-              <li className="flex items-center gap-3">
-                <Phone className="h-4 w-4 shrink-0 text-primary-400" />
-                <span className="text-sm text-gray-400">01 23 45 67 89</span>
-              </li>
-              <li className="flex items-center gap-3">
-                <Mail className="h-4 w-4 shrink-0 text-primary-400" />
-                <span className="text-sm text-gray-400">contact@medicoplace.com</span>
-              </li>
-            </ul>
+            <div className="rounded-lg border border-gray-700/50 bg-gray-800/50 p-4">
+              <p className="text-sm leading-relaxed text-gray-400">L&apos;adresse sera disponible prochainement.</p>
+              <p className="mt-3 text-sm leading-relaxed text-gray-400">Les paiements via MonCash et NatCash seront disponibles bientôt.</p>
+            </div>
           </div>
         </div>
         <div className="mt-12 flex flex-col items-center justify-between gap-4 border-t border-gray-800 pt-8 md:flex-row">

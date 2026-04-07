@@ -68,22 +68,26 @@ export default function CheckoutPage() {
                     <Input label="Nom" placeholder="Votre nom" required />
                   </div>
                   <Input label="Adresse" placeholder="Numéro et nom de rue" required />
-                  <div className="grid gap-4 sm:grid-cols-3">
-                    <Input label="Code postal" placeholder="75000" required />
-                    <Input label="Ville" placeholder="Paris" required className="sm:col-span-2" />
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    <Input label="Ville" placeholder="Port-au-Prince" required />
+                    <Input label="Département" placeholder="Ouest" required />
                   </div>
-                  <Input label="Téléphone" type="tel" placeholder="06 12 34 56 78" required />
+                  <Input label="Téléphone" type="tel" placeholder="+509 00 00 0000" required />
                 </div>
               </div>
               <div className="card-premium p-6">
                 <div className="mb-4 flex items-center gap-2">
                   <CreditCard className="h-5 w-5 text-gray-400" />
-                  <h2 className="text-lg font-semibold text-gray-900">Informations de paiement</h2>
+                  <h2 className="text-lg font-semibold text-gray-900">Méthode de paiement</h2>
+                </div>
+                <div className="mb-4 rounded-lg border border-amber-200 bg-amber-50 p-4">
+                  <p className="text-sm font-medium text-amber-800">Les paiements via MonCash et NatCash seront disponibles bientôt.</p>
+                  <p className="mt-1 text-xs text-amber-600">En attendant, vous pouvez procéder par carte bancaire.</p>
                 </div>
                 <div className="space-y-4">
                   <Input label="Numéro de carte" placeholder="1234 5678 9012 3456" required />
                   <div className="grid gap-4 sm:grid-cols-2">
-                    <Input label="Date d'expiration" placeholder="MM/AA" required />
+                    <Input label="Date d&apos;expiration" placeholder="MM/AA" required />
                     <Input label="CVV" placeholder="123" required />
                   </div>
                   <Input label="Titulaire de la carte" placeholder="Nom sur la carte" required />
