@@ -72,7 +72,7 @@ export default function HistoryPage() {
                     <td className="px-6 py-4 text-sm font-medium text-gray-900">CMD-{order.id.substring(0, 8).toUpperCase()}</td>
                     <td className="px-6 py-4 text-sm text-gray-500">{new Date(order.created_at).toLocaleDateString('fr-FR')}</td>
                     <td className="px-6 py-4"><span className="rounded-full bg-blue-50 px-2.5 py-1 text-xs font-medium text-blue-700">Commande</span></td>
-                    <td className="px-6 py-4 text-sm text-gray-600">{order.items.map((i) => i.name).join(', ')}</td>
+                    <td className="px-6 py-4 text-sm text-gray-600">{order.items.slice(0, 3).map((i) => i.name).join(', ')}{order.items.length > 3 ? ` (+${order.items.length - 3})` : ''}</td>
                     <td className="px-6 py-4 text-sm font-semibold text-gray-900">{formatPrice(order.total)}</td>
                     <td className="px-6 py-4"><span className="rounded-full bg-gray-100 px-2.5 py-1 text-xs font-medium text-gray-700">{order.status}</span></td>
                   </tr>

@@ -46,13 +46,13 @@ export default function DashboardPage() {
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {[
-          { icon: ShoppingBag, label: 'Commandes', value: String(orders.length), color: 'bg-green-50 text-green-600' },
+          { icon: ShoppingBag, label: 'Commandes', value: loadingOrders ? '…' : String(orders.length), color: 'bg-green-50 text-green-600' },
           { icon: Calendar, label: 'Rendez-vous', value: '—', color: 'bg-blue-50 text-blue-600' },
           { icon: Clock, label: 'Consultations', value: '—', color: 'bg-purple-50 text-purple-600' },
         ].map((stat) => (
           <div key={stat.label} className="card-premium flex items-center gap-4 p-5">
             <div className={`flex h-12 w-12 items-center justify-center rounded-xl ${stat.color}`}><stat.icon className="h-6 w-6" /></div>
-            <div><p className="text-2xl font-bold text-gray-900">{loadingOrders ? '…' : stat.value}</p><p className="text-sm text-gray-500">{stat.label}</p></div>
+            <div><p className="text-2xl font-bold text-gray-900">{stat.value}</p><p className="text-sm text-gray-500">{stat.label}</p></div>
           </div>
         ))}
       </div>
