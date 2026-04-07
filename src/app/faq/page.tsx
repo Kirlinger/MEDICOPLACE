@@ -24,7 +24,7 @@ export default function FAQPage() {
             <p className="mb-8 text-lg text-gray-600">Trouvez rapidement les réponses à vos questions sur MEDICOPLACE et nos services.</p>
             <div className="relative mx-auto max-w-md">
               <Search className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
-              <input type="text" value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Rechercher une question..." className="w-full rounded-xl border border-gray-200 py-3 pl-12 pr-4 text-sm focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20" />
+              <input type="text" value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Rechercher une question..." maxLength={200} className="w-full rounded-xl border border-gray-200 py-3 pl-12 pr-4 text-sm focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20" />
             </div>
           </div>
         </div>

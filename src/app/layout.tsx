@@ -8,6 +8,14 @@ import { AuthProvider } from '@/lib/auth-context';
 export const metadata: Metadata = {
   title: 'MEDICOPLACE — Votre Plateforme de Santé',
   description: 'Consultations médicales, pharmacie en ligne, téléconsultation et bien plus. MEDICOPLACE, la plateforme de santé de confiance.',
+  robots: {
+    index: true,
+    follow: true,
+    noarchive: true,
+  },
+  other: {
+    'format-detection': 'telephone=no',
+  },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

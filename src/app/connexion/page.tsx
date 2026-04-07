@@ -3,8 +3,9 @@
 import { useState, FormEvent } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Mail, Lock, Plus } from 'lucide-react';
+import { Mail, Lock, Plus, AlertCircle } from 'lucide-react';
 import { useAuth } from '@/lib/auth-context';
+import { isValidEmail } from '@/lib/validation';
 import Input from '@/components/ui/Input';
 import Button from '@/components/ui/Button';
 
@@ -14,13 +15,30 @@ export default function ConnexionPage() {
   const [loading, setLoading] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
+    setError('');
+
+    if (!email.trim() || !password.trim()) {
+      setError('Veuillez remplir tous les champs.');
+      return;
+    }
+
+    if (!isValidEmail(email)) {
+      setError('Veuillez entrer une adresse email valide.');
+      return;
+    }
+
     setLoading(true);
     try {
-      const success = await login(email, password);
-      if (success) router.push('/tableau-de-bord');
+      const result = await login(email, password);
+      if (result.success) {
+        router.push('/tableau-de-bord');
+      } else {
+        setError(result.error || 'Identifiants incorrects.');
+      }
     } finally { setLoading(false); }
   };
 
@@ -38,9 +56,15 @@ export default function ConnexionPage() {
             <h1 className="text-2xl font-bold text-secondary-900">Bienvenue</h1>
             <p className="mt-2 text-sm text-gray-500">Connectez-vous à votre espace MEDICOPLACE</p>
           </div>
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <Input label="Email" type="email" placeholder="votre@email.com" icon={<Mail className="h-4 w-4" />} value={email} onChange={(e) => setEmail(e.target.value)} required />
-            <Input label="Mot de passe" type="password" placeholder="••••••••" icon={<Lock className="h-4 w-4" />} value={password} onChange={(e) => setPassword(e.target.value)} required />
+          {error && (
+            <div className="mb-4 flex items-center gap-2 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">
+              <AlertCircle className="h-4 w-4 shrink-0" />
+              <span>{error}</span>
+            </div>
+          )}
+          <form onSubmit={handleSubmit} className="space-y-4" noValidate>
+            <Input label="Email" type="email" placeholder="votre@email.com" icon={<Mail className="h-4 w-4" />} value={email} onChange={(e) => setEmail(e.target.value)} required autoComplete="email" maxLength={254} />
+            <Input label="Mot de passe" type="password" placeholder="••••••••" icon={<Lock className="h-4 w-4" />} value={password} onChange={(e) => setPassword(e.target.value)} required autoComplete="current-password" maxLength={128} />
             <div className="flex items-center justify-between">
               <label className="flex items-center gap-2">
                 <input type="checkbox" className="h-4 w-4 rounded border-gray-300 text-primary-600 focus:ring-primary-500" />

@@ -2,6 +2,10 @@
 
 import { createContext, useContext, useState, useCallback, ReactNode } from 'react';
 import { CartItem, Product } from '@/types';
+import { clampQuantity } from '@/lib/validation';
+
+const MAX_ITEM_QUANTITY = 99;
+const MAX_CART_ITEMS = 50;
 
 interface CartContextType {
   items: CartItem[];
@@ -22,10 +26,12 @@ export function CartProvider({ children }: { children: ReactNode }) {
     setItems((prev) => {
       const existing = prev.find((item) => item.id === product.id);
       if (existing) {
+        if (existing.quantity >= MAX_ITEM_QUANTITY) return prev;
         return prev.map((item) =>
-          item.id === product.id ? { ...item, quantity: item.quantity + 1 } : item
+          item.id === product.id ? { ...item, quantity: clampQuantity(item.quantity + 1, 1, MAX_ITEM_QUANTITY) } : item
         );
       }
+      if (prev.length >= MAX_CART_ITEMS) return prev;
       return [...prev, { ...product, quantity: 1 }];
     });
   }, []);
@@ -39,8 +45,9 @@ export function CartProvider({ children }: { children: ReactNode }) {
       setItems((prev) => prev.filter((item) => item.id !== id));
       return;
     }
+    const clamped = clampQuantity(quantity, 1, MAX_ITEM_QUANTITY);
     setItems((prev) =>
-      prev.map((item) => (item.id === id ? { ...item, quantity } : item))
+      prev.map((item) => (item.id === id ? { ...item, quantity: clamped } : item))
     );
   }, []);
 

@@ -54,9 +54,9 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
               <div className="flex items-center rounded-lg border border-gray-200">
                 <button onClick={() => setQuantity(Math.max(1, quantity - 1))} className="px-3 py-2 text-gray-500 hover:text-gray-700"><Minus className="h-4 w-4" /></button>
                 <span className="min-w-[3rem] text-center text-sm font-semibold">{quantity}</span>
-                <button onClick={() => setQuantity(quantity + 1)} className="px-3 py-2 text-gray-500 hover:text-gray-700"><Plus className="h-4 w-4" /></button>
+                <button onClick={() => setQuantity(Math.min(99, quantity + 1))} className="px-3 py-2 text-gray-500 hover:text-gray-700"><Plus className="h-4 w-4" /></button>
               </div>
-              <Button size="lg" onClick={() => { for (let i = 0; i < quantity; i++) addItem(product); }}><ShoppingCart className="h-4 w-4" /> Ajouter au panier</Button>
+              <Button size="lg" onClick={() => { const qty = Math.min(quantity, 99); for (let i = 0; i < qty; i++) addItem(product); }}><ShoppingCart className="h-4 w-4" /> Ajouter au panier</Button>
             </div>
             <div className="space-y-3 rounded-xl bg-gray-50 p-5">
               {[{ icon: Truck, text: 'Livraison gratuite dès 500 Gdes' }, { icon: ShieldCheck, text: 'Paiement 100% sécurisé' }, { icon: RotateCcw, text: 'Retour gratuit sous 30 jours' }].map((item) => (
