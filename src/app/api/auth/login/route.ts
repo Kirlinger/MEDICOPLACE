@@ -12,7 +12,9 @@ import { logAuditEvent } from '@/lib/server/audit-log';
 // Generic error to prevent user enumeration
 const AUTH_ERROR = 'Email ou mot de passe incorrect.';
 
-// Pre-generated bcrypt hash for constant-time comparison on non-existent users
+// Pre-generated bcrypt hash (cost=12) of a random string.
+// Used for constant-time comparison on non-existent users to prevent timing-based enumeration.
+// Must use the same cost factor as SALT_ROUNDS in auth.ts.
 const DUMMY_HASH = '$2b$12$ObFvU.iDFSs4V4tJ9KnBvevHPDdIBHLvii3pASOXZjccnePMxpuzq';
 
 export async function POST(request: NextRequest) {

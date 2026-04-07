@@ -1,6 +1,7 @@
 /**
  * In-memory rate limiter for API routes.
  * Uses a sliding window approach to limit requests per IP.
+ * Cleanup is done lazily during each check to avoid setInterval issues in serverless.
  * In production with multiple instances, use Redis or a distributed store.
  */
 
@@ -10,14 +11,18 @@ interface RateLimitEntry {
 }
 
 const store = new Map<string, RateLimitEntry>();
+let lastCleanup = Date.now();
+const CLEANUP_INTERVAL = 60_000; // 60 seconds
 
-// Clean up expired entries periodically (every 60s)
-setInterval(() => {
+/** Lazy cleanup: remove expired entries when enough time has passed */
+function cleanupIfNeeded(): void {
   const now = Date.now();
+  if (now - lastCleanup < CLEANUP_INTERVAL) return;
+  lastCleanup = now;
   for (const [key, entry] of store.entries()) {
     if (now > entry.resetAt) store.delete(key);
   }
-}, 60_000);
+}
 
 interface RateLimitConfig {
   /** Maximum number of requests in the window */
@@ -37,6 +42,7 @@ interface RateLimitResult {
  * Returns whether the request is allowed and the remaining count.
  */
 export function checkRateLimit(key: string, config: RateLimitConfig): RateLimitResult {
+  cleanupIfNeeded();
   const now = Date.now();
   const entry = store.get(key);
 

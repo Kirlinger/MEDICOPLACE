@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { Lock, Plus, CheckCircle, AlertCircle } from 'lucide-react';
 import { checkPasswordStrength, passwordsMatch } from '@/lib/validation';
+import { apiRequest } from '@/lib/api-client';
 import Input from '@/components/ui/Input';
 import Button from '@/components/ui/Button';
 
@@ -40,23 +41,14 @@ function ResetPasswordForm() {
 
     setLoading(true);
     try {
-      const csrfMatch = document.cookie.match(/medicoplace_csrf=([^;]+)/);
-      const csrfToken = csrfMatch ? csrfMatch[1] : '';
-      const response = await fetch('/api/auth/reset-password', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          ...(csrfToken ? { 'x-csrf-token': csrfToken } : {}),
-        },
-        body: JSON.stringify({ token, password }),
-        credentials: 'same-origin',
-      });
+      const { ok, status, data } = await apiRequest<{ success?: boolean; error?: string }>(
+        '/api/auth/reset-password',
+        { method: 'POST', body: { token, password } }
+      );
 
-      const data = await response.json();
-
-      if (response.ok && data.success) {
+      if (ok && data.success) {
         setDone(true);
-      } else if (response.status === 429) {
+      } else if (status === 429) {
         setError('Trop de tentatives. Veuillez patienter quelques minutes.');
       } else {
         setError(data.error || 'Erreur lors de la réinitialisation du mot de passe.');

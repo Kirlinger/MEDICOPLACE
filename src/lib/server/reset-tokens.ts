@@ -13,14 +13,18 @@ const RESET_TOKEN_EXPIRY = 15 * 60; // 15 minutes
 
 // In-memory store of issued tokens (for invalidation)
 const issuedTokens = new Map<string, { userId: string; expiresAt: number }>();
+let lastTokenCleanup = Date.now();
+const TOKEN_CLEANUP_INTERVAL = 60_000;
 
-// Periodic cleanup of expired tokens
-setInterval(() => {
+/** Lazy cleanup: remove expired tokens during verification */
+function cleanupExpiredTokens(): void {
   const now = Date.now();
+  if (now - lastTokenCleanup < TOKEN_CLEANUP_INTERVAL) return;
+  lastTokenCleanup = now;
   for (const [token, data] of issuedTokens.entries()) {
     if (now > data.expiresAt) issuedTokens.delete(token);
   }
-}, 60_000);
+}
 
 /** Create a signed reset token for a user */
 export async function createResetToken(userId: string, email: string): Promise<string> {
@@ -41,6 +45,7 @@ export async function createResetToken(userId: string, email: string): Promise<s
 
 /** Verify a reset token and return the associated user data */
 export async function verifyResetToken(token: string): Promise<{ userId: string; email: string } | null> {
+  cleanupExpiredTokens();
   try {
     // Check if token was invalidated
     const stored = issuedTokens.get(token);

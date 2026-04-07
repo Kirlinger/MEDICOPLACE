@@ -98,6 +98,16 @@ export async function POST(request: NextRequest) {
   const baseUrl = getMonCashBaseUrl();
   const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
 
+  // Generate HMAC signature for callback URL to prevent tampering
+  const callbackSecret = process.env.JWT_SECRET || 'dev-callback-secret';
+  const signatureData = `${orderId}:${amount}:${session.userId}`;
+  const encoder = new TextEncoder();
+  const key = await crypto.subtle.importKey(
+    'raw', encoder.encode(callbackSecret), { name: 'HMAC', hash: 'SHA-256' }, false, ['sign']
+  );
+  const signatureBytes = await crypto.subtle.sign('HMAC', key, encoder.encode(signatureData));
+  const callbackSignature = Array.from(new Uint8Array(signatureBytes), (b) => b.toString(16).padStart(2, '0')).join('');
+
   try {
     const response = await fetch(`${baseUrl}/Api/v1/CreatePayment`, {
       method: 'POST',
@@ -108,8 +118,9 @@ export async function POST(request: NextRequest) {
       body: JSON.stringify({
         amount,
         orderId,
-        successUrl: `${appUrl}/paiement/succes?orderId=${orderId}`,
-        errorUrl: `${appUrl}/paiement/erreur?orderId=${orderId}`,
+        // Signed callback URLs — the signature prevents attackers from crafting fake callback URLs
+        successUrl: `${appUrl}/paiement/succes?orderId=${orderId}&sig=${callbackSignature}`,
+        errorUrl: `${appUrl}/paiement/erreur?orderId=${orderId}&sig=${callbackSignature}`,
       }),
     });
 

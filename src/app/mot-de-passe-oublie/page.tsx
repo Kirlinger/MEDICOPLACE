@@ -4,6 +4,7 @@ import { useState, FormEvent } from 'react';
 import Link from 'next/link';
 import { Mail, Plus, ArrowLeft, CheckCircle, AlertCircle } from 'lucide-react';
 import { isValidEmail } from '@/lib/validation';
+import { apiRequest } from '@/lib/api-client';
 import Input from '@/components/ui/Input';
 import Button from '@/components/ui/Button';
 
@@ -24,18 +25,11 @@ export default function ForgotPasswordPage() {
 
     setLoading(true);
     try {
-      const csrfMatch = document.cookie.match(/medicoplace_csrf=([^;]+)/);
-      const csrfToken = csrfMatch ? csrfMatch[1] : '';
-      const response = await fetch('/api/auth/forgot-password', {
+      const { status } = await apiRequest('/api/auth/forgot-password', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          ...(csrfToken ? { 'x-csrf-token': csrfToken } : {}),
-        },
-        body: JSON.stringify({ email }),
-        credentials: 'same-origin',
+        body: { email },
       });
-      if (response.status === 429) {
+      if (status === 429) {
         setError('Trop de tentatives. Veuillez patienter quelques minutes.');
       } else {
         setSent(true);
