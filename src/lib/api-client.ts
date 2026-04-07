@@ -39,6 +39,14 @@ export async function apiRequest<T = Record<string, unknown>>(
     credentials: 'same-origin',
   });
 
-  const data = await response.json();
+  let data: T;
+  try {
+    data = await response.json();
+  } catch {
+    // Server returned non-JSON (e.g. HTML error page from unhandled exception)
+    console.error(`[API] Non-JSON response from ${method} ${url}: HTTP ${response.status}`);
+    data = { error: `Erreur serveur (${response.status}). Veuillez réessayer.` } as T;
+  }
+
   return { ok: response.ok, status: response.status, data };
 }
