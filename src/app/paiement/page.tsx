@@ -48,7 +48,7 @@ export default function CheckoutPage() {
 
     setLoading(true);
     await new Promise((resolve) => setTimeout(resolve, 1500));
-    setOrderId('CMD-' + Date.now().toString(36).toUpperCase());
+    setOrderId('CMD-' + crypto.randomUUID().substring(0, 8).toUpperCase());
     clearCart();
     setOrderPlaced(true);
     setLoading(false);
