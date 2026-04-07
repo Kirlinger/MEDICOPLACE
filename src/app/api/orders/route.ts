@@ -145,6 +145,7 @@ export async function POST(request: NextRequest) {
     }
   } else {
     memoryStore.orders.push(order as InMemoryOrder);
+    memoryStore.persist();
   }
 
   // Audit log

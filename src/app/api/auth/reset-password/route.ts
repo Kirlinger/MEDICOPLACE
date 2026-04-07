@@ -72,8 +72,44 @@ export async function POST(request: NextRequest) {
   // Invalidate the used token
   invalidateResetToken(token);
 
+  // Resolve user profile data for the session token
+  let firstName = '';
+  let lastName = '';
+  let email = '';
+  let phone = '';
+
+  if (isDatabaseConfigured()) {
+    const supabase = getSupabaseAdmin()!;
+    const { data: userData } = await supabase
+      .from('users')
+      .select('first_name, last_name, email, phone')
+      .eq('id', tokenData.userId)
+      .maybeSingle();
+    if (userData) {
+      firstName = userData.first_name;
+      lastName = userData.last_name;
+      email = userData.email;
+      phone = userData.phone || '';
+    }
+  } else {
+    const memUser = memoryStore.findUserById(tokenData.userId);
+    if (memUser) {
+      firstName = memUser.first_name;
+      lastName = memUser.last_name;
+      email = memUser.email;
+      phone = memUser.phone || '';
+    }
+  }
+
   // Create a session for the user
-  const sessionToken = await createSessionToken(tokenData.userId, 'user');
+  const sessionToken = await createSessionToken({
+    userId: tokenData.userId,
+    role: 'user',
+    firstName,
+    lastName,
+    email,
+    phone,
+  });
   await setSessionCookie(sessionToken);
 
   await logAuditEvent({

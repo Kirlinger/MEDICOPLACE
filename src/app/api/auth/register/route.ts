@@ -101,10 +101,18 @@ export async function POST(request: NextRequest) {
       updated_at: now,
     };
     memoryStore.users.push(newUser);
+    memoryStore.persist();
   }
 
   // Create session
-  const token = await createSessionToken(userId, 'user');
+  const token = await createSessionToken({
+    userId,
+    role: 'user',
+    firstName,
+    lastName,
+    email,
+    phone,
+  });
   await setSessionCookie(token);
 
   // Audit log

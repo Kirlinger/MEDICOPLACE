@@ -4,7 +4,7 @@
 import { NextRequest } from 'next/server';
 import { checkRateLimit, RATE_LIMITS } from './rate-limit';
 import { validateCsrf } from './csrf';
-import { getSession } from './auth';
+import { getSession, SessionUser } from './auth';
 
 /** Headers that should be applied to all API responses with sensitive data */
 export const SENSITIVE_HEADERS: Record<string, string> = {
@@ -57,7 +57,7 @@ export async function requireCsrf(request: Request): Promise<Response | null> {
 
 /** Require an authenticated session. Returns error response or session data. */
 export async function requireAuth(): Promise<
-  | { session: { userId: string; role: string }; error: null }
+  | { session: SessionUser; error: null }
   | { session: null; error: Response }
 > {
   const session = await getSession();
@@ -72,7 +72,7 @@ export async function requireAuth(): Promise<
 
 /** Require admin role. Returns error response or session data. */
 export async function requireAdmin(): Promise<
-  | { session: { userId: string; role: string }; error: null }
+  | { session: SessionUser; error: null }
   | { session: null; error: Response }
 > {
   const result = await requireAuth();
