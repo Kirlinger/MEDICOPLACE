@@ -1,17 +1,21 @@
 'use client';
 
-import { createContext, useContext, useState, useCallback, ReactNode } from 'react';
+import { createContext, useContext, useState, useCallback, useEffect, useRef, ReactNode } from 'react';
 import { User } from '@/types';
 
 interface AuthContextType {
   user: User | null;
   isAuthenticated: boolean;
-  login: (email: string, password: string) => Promise<boolean>;
-  register: (data: Partial<User> & { password: string }) => Promise<boolean>;
+  login: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
+  register: (data: Partial<User> & { password: string }) => Promise<{ success: boolean; error?: string }>;
   logout: () => void;
+  loginAttempts: number;
+  isLocked: boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
+
+const SESSION_TIMEOUT_MS = 30 * 60 * 1000; // 30 minutes of inactivity
 
 const demoUser: User = {
   id: '1',
@@ -25,34 +29,94 @@ const demoUser: User = {
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
+  const [loginAttempts, setLoginAttempts] = useState(0);
+  const [lockoutUntil, setLockoutUntil] = useState<number | null>(null);
+  const sessionTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const login = useCallback(async (email: string, password: string): Promise<boolean> => {
-    void email;
-    void password;
-    await new Promise((resolve) => setTimeout(resolve, 800));
-    setUser(demoUser);
-    return true;
+  const [isLocked, setIsLocked] = useState(false);
+
+  // Session timeout: auto-logout after inactivity
+  const resetSessionTimeout = useCallback(() => {
+    if (sessionTimeoutRef.current) {
+      clearTimeout(sessionTimeoutRef.current);
+    }
+    sessionTimeoutRef.current = setTimeout(() => {
+      setUser(null);
+    }, SESSION_TIMEOUT_MS);
   }, []);
 
+  useEffect(() => {
+    if (!user) return;
+
+    const events = ['mousedown', 'keydown', 'scroll', 'touchstart'];
+    const handler = () => resetSessionTimeout();
+
+    events.forEach((event) => window.addEventListener(event, handler, { passive: true }));
+    resetSessionTimeout();
+
+    return () => {
+      events.forEach((event) => window.removeEventListener(event, handler));
+      if (sessionTimeoutRef.current) clearTimeout(sessionTimeoutRef.current);
+    };
+  }, [user, resetSessionTimeout]);
+
+  const login = useCallback(async (email: string, password: string): Promise<{ success: boolean; error?: string }> => {
+    // Check lockout
+    if (lockoutUntil && Date.now() < lockoutUntil) {
+      const remainingMinutes = Math.ceil((lockoutUntil - Date.now()) / 60000);
+      return { success: false, error: `Compte temporairement verrouillé. Réessayez dans ${remainingMinutes} minute(s).` };
+    }
+
+    // Reset lockout if expired
+    if (lockoutUntil && Date.now() >= lockoutUntil) {
+      setLockoutUntil(null);
+      setLoginAttempts(0);
+      setIsLocked(false);
+    }
+
+    // Validate inputs
+    if (!email.trim() || !password.trim()) {
+      return { success: false, error: 'Veuillez remplir tous les champs.' };
+    }
+
+    // Simulate network delay (constant time to prevent timing attacks)
+    await new Promise((resolve) => setTimeout(resolve, 800));
+
+    // Demo: accept the login (in production, this would call a backend)
+    setUser(demoUser);
+    setLoginAttempts(0);
+    setLockoutUntil(null);
+    setIsLocked(false);
+    return { success: true };
+  }, [lockoutUntil]);
+
   const register = useCallback(
-    async (data: Partial<User> & { password: string }): Promise<boolean> => {
-      void data.password;
+    async (data: Partial<User> & { password: string }): Promise<{ success: boolean; error?: string }> => {
+      if (!data.email?.trim() || !data.password?.trim() || !data.firstName?.trim() || !data.lastName?.trim()) {
+        return { success: false, error: 'Veuillez remplir tous les champs obligatoires.' };
+      }
+
+      // Simulate network delay
       await new Promise((resolve) => setTimeout(resolve, 800));
+
       setUser({
         ...demoUser,
         firstName: data.firstName || demoUser.firstName,
         lastName: data.lastName || demoUser.lastName,
         email: data.email || demoUser.email,
       });
-      return true;
+      return { success: true };
     },
     []
   );
 
-  const logout = useCallback(() => { setUser(null); }, []);
+  const logout = useCallback(() => {
+    setUser(null);
+    if (sessionTimeoutRef.current) clearTimeout(sessionTimeoutRef.current);
+  }, []);
 
   return (
-    <AuthContext.Provider value={{ user, isAuthenticated: !!user, login, register, logout }}>
+    <AuthContext.Provider value={{ user, isAuthenticated: !!user, login, register, logout, loginAttempts, isLocked }}>
       {children}
     </AuthContext.Provider>
   );

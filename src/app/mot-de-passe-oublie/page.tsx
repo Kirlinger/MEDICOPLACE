@@ -2,7 +2,8 @@
 
 import { useState, FormEvent } from 'react';
 import Link from 'next/link';
-import { Mail, Plus, ArrowLeft, CheckCircle } from 'lucide-react';
+import { Mail, Plus, ArrowLeft, CheckCircle, AlertCircle } from 'lucide-react';
+import { isValidEmail } from '@/lib/validation';
 import Input from '@/components/ui/Input';
 import Button from '@/components/ui/Button';
 
@@ -10,9 +11,17 @@ export default function ForgotPasswordPage() {
   const [loading, setLoading] = useState(false);
   const [sent, setSent] = useState(false);
   const [email, setEmail] = useState('');
+  const [error, setError] = useState('');
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
+    setError('');
+
+    if (!isValidEmail(email)) {
+      setError('Veuillez entrer une adresse email valide.');
+      return;
+    }
+
     setLoading(true);
     await new Promise((resolve) => setTimeout(resolve, 1000));
     setSent(true);
@@ -42,8 +51,14 @@ export default function ForgotPasswordPage() {
                 <h1 className="text-2xl font-bold text-secondary-900">Mot de passe oublié ?</h1>
                 <p className="mt-2 text-sm text-gray-500">Entrez votre adresse email et nous vous enverrons un lien pour réinitialiser votre mot de passe.</p>
               </div>
-              <form onSubmit={handleSubmit} className="space-y-4">
-                <Input label="Email" type="email" placeholder="votre@email.com" icon={<Mail className="h-4 w-4" />} value={email} onChange={(e) => setEmail(e.target.value)} required />
+              {error && (
+                <div className="mb-4 flex items-center gap-2 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">
+                  <AlertCircle className="h-4 w-4 shrink-0" />
+                  <span>{error}</span>
+                </div>
+              )}
+              <form onSubmit={handleSubmit} className="space-y-4" noValidate>
+                <Input label="Email" type="email" placeholder="votre@email.com" icon={<Mail className="h-4 w-4" />} value={email} onChange={(e) => setEmail(e.target.value)} required autoComplete="email" maxLength={254} />
                 <Button type="submit" fullWidth loading={loading} size="lg">Envoyer le lien</Button>
               </form>
               <p className="mt-6 text-center"><Link href="/connexion" className="inline-flex items-center gap-2 text-sm font-medium text-gray-500 hover:text-gray-700"><ArrowLeft className="h-4 w-4" /> Retour à la connexion</Link></p>
