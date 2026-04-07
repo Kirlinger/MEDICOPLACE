@@ -1,6 +1,6 @@
 /**
  * In-memory rate limiter for API routes.
- * Uses a sliding window approach to limit requests per IP.
+ * Uses a fixed window approach to limit requests per IP.
  * Cleanup is done lazily during each check to avoid setInterval issues in serverless.
  * In production with multiple instances, use Redis or a distributed store.
  */

@@ -68,14 +68,20 @@ export function isValidDateOfBirth(dateStr: string): boolean {
   if (!trimmed) return true;
   // Must match YYYY-MM-DD
   if (!/^\d{4}-\d{2}-\d{2}$/.test(trimmed)) return false;
-  const date = new Date(trimmed);
+  const [year, month, day] = trimmed.split('-').map(Number);
+  // Validate components are reasonable
+  if (month < 1 || month > 12 || day < 1 || day > 31) return false;
+  const date = new Date(year, month - 1, day);
   if (isNaN(date.getTime())) return false;
+  // Compare date-only (avoid timezone issues)
   const now = new Date();
-  // Must not be in the future
-  if (date > now) return false;
+  const todayYear = now.getFullYear();
+  const todayMonth = now.getMonth();
+  const todayDay = now.getDate();
+  // Must not be in the future (date-only comparison)
+  if (year > todayYear || (year === todayYear && (month - 1 > todayMonth || (month - 1 === todayMonth && day > todayDay)))) return false;
   // Must be at most 150 years old
-  const minDate = new Date(now.getFullYear() - 150, now.getMonth(), now.getDate());
-  if (date < minDate) return false;
+  if (todayYear - year > 150) return false;
   return true;
 }
 

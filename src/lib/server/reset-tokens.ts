@@ -5,7 +5,7 @@
  */
 import { SignJWT, jwtVerify } from 'jose';
 
-const RESET_TOKEN_SECRET_RAW = process.env.RESET_TOKEN_SECRET || process.env.JWT_SECRET || '';
+const RESET_TOKEN_SECRET_RAW = process.env.RESET_TOKEN_SECRET || '';
 const RESET_TOKEN_SECRET = new TextEncoder().encode(
   RESET_TOKEN_SECRET_RAW || 'dev-reset-secret-change-in-production-32ch!!'
 );

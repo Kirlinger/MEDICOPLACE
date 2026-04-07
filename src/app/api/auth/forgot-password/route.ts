@@ -59,7 +59,7 @@ export async function POST(request: NextRequest) {
     // In production, send the reset email here.
     // For now, log the token for development purposes only.
     if (process.env.NODE_ENV !== 'production') {
-      console.log(`[DEV] Password reset token for ${email}: ${token}`);
+      console.log(`[DEV] Password reset token generated for ${email}: ${token.substring(0, 20)}...`);
     }
 
     // TODO: integrate email service (e.g., Resend) to send the reset link:

@@ -47,6 +47,8 @@ const securityHeaders = [
   },
   {
     key: 'Content-Security-Policy',
+    // Note: 'unsafe-inline' is required for Next.js App Router hydration scripts
+    // and Tailwind CSS. When Next.js adds built-in nonce-based CSP support, migrate to that.
     value: [
       "default-src 'self'",
       "script-src 'self' 'unsafe-inline'",

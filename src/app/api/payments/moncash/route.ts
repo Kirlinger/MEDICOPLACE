@@ -99,7 +99,8 @@ export async function POST(request: NextRequest) {
   const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
 
   // Generate HMAC signature for callback URL to prevent tampering
-  const callbackSecret = process.env.JWT_SECRET || 'dev-callback-secret';
+  // Uses a dedicated callback secret, separate from session JWT
+  const callbackSecret = process.env.MONCASH_CALLBACK_SECRET || process.env.MONCASH_CLIENT_SECRET || 'dev-callback-secret';
   const signatureData = `${orderId}:${amount}:${session.userId}`;
   const encoder = new TextEncoder();
   const key = await crypto.subtle.importKey(
