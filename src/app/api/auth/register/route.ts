@@ -62,11 +62,9 @@ export async function POST(request: NextRequest) {
         .maybeSingle();
 
       if (lookupError) {
-        console.error('[REGISTER] User lookup error:', lookupError);
-        return safeError(
-          `Erreur backend (users lookup): ${lookupError.message}${lookupError.code ? ` [${lookupError.code}]` : ''}`,
-          500
-        );
+        const error = lookupError;
+        console.error('REGISTER ERROR:', error);
+        return Response.json({ error: error.message }, { status: 500 });
       }
 
       if (existing) {
@@ -87,11 +85,9 @@ export async function POST(request: NextRequest) {
       });
 
       if (insertError) {
-        console.error('[REGISTER] Insert error:', insertError);
-        return safeError(
-          `Erreur backend (users insert): ${insertError.message}${insertError.code ? ` [${insertError.code}]` : ''}`,
-          500
-        );
+        const error = insertError;
+        console.error('REGISTER ERROR:', error);
+        return Response.json({ error: error.message }, { status: 500 });
       }
     } else {
       // In-memory fallback
@@ -148,8 +144,8 @@ export async function POST(request: NextRequest) {
       headers: { 'Cache-Control': 'no-store, no-cache, must-revalidate' },
     });
   } catch (err) {
-    const message = err instanceof Error ? err.message : String(err);
-    console.error('[REGISTER] Unhandled error:', err);
-    return safeError(`Erreur backend (register): ${message}`, 500);
+    const error = err instanceof Error ? err : new Error(String(err));
+    console.error('REGISTER ERROR:', error);
+    return Response.json({ error: error.message }, { status: 500 });
   }
 }
