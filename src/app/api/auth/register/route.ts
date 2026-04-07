@@ -62,8 +62,11 @@ export async function POST(request: NextRequest) {
         .maybeSingle();
 
       if (lookupError) {
-        console.error('[REGISTER] User lookup error:', lookupError.message, lookupError.code, lookupError.details);
-        return safeError('Erreur lors de la vérification du compte.', 500);
+        console.error('[REGISTER] User lookup error:', lookupError);
+        return safeError(
+          `Erreur backend (users lookup): ${lookupError.message}${lookupError.code ? ` [${lookupError.code}]` : ''}`,
+          500
+        );
       }
 
       if (existing) {
@@ -84,8 +87,11 @@ export async function POST(request: NextRequest) {
       });
 
       if (insertError) {
-        console.error('[REGISTER] Insert error:', insertError.message, insertError.code, insertError.details);
-        return safeError('Erreur lors de la création du compte.', 500);
+        console.error('[REGISTER] Insert error:', insertError);
+        return safeError(
+          `Erreur backend (users insert): ${insertError.message}${insertError.code ? ` [${insertError.code}]` : ''}`,
+          500
+        );
       }
     } else {
       // In-memory fallback
@@ -143,12 +149,7 @@ export async function POST(request: NextRequest) {
     });
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
-    console.error('[REGISTER] Unhandled error:', message);
-    return safeError(
-      process.env.NODE_ENV === 'production'
-        ? 'Erreur interne du serveur. Veuillez réessayer.'
-        : `Erreur interne: ${message}`,
-      500
-    );
+    console.error('[REGISTER] Unhandled error:', err);
+    return safeError(`Erreur backend (register): ${message}`, 500);
   }
 }

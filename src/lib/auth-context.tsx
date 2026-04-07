@@ -130,7 +130,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return { success: false, error: resData.error || 'Erreur lors de la création du compte.' };
       } catch (err) {
         console.error('[AUTH] Register error:', err);
-        return { success: false, error: 'Erreur de connexion. Veuillez réessayer.' };
+        const message = err instanceof Error ? err.message : String(err);
+        return { success: false, error: message || 'Erreur de connexion. Veuillez réessayer.' };
       }
     },
     []
