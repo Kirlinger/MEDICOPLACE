@@ -49,6 +49,8 @@ const securityHeaders = [
     key: 'Content-Security-Policy',
     // Note: 'unsafe-inline' is required for Next.js App Router hydration scripts
     // and Tailwind CSS. When Next.js adds built-in nonce-based CSP support, migrate to that.
+    // upgrade-insecure-requests is only applied in production (HTTPS) — in development
+    // it would break all fetch() calls by upgrading http://localhost to https://localhost.
     value: [
       "default-src 'self'",
       "script-src 'self' 'unsafe-inline'",
@@ -60,7 +62,7 @@ const securityHeaders = [
       "base-uri 'self'",
       "form-action 'self'",
       "object-src 'none'",
-      "upgrade-insecure-requests",
+      ...(process.env.NODE_ENV === 'production' ? ["upgrade-insecure-requests"] : []),
     ].join('; '),
   },
 ];

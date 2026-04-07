@@ -39,8 +39,18 @@ export function isDatabaseConfigured(): boolean {
 // Data persists across HMR reloads (globalThis) and across server
 // restarts (JSON file in project root, excluded from git).
 
-/** Path to the JSON file used for development data persistence */
-const DEV_STORE_PATH = path.join(process.cwd(), '.medicoplace-dev-store.json');
+/** Path to the JSON file used for development data persistence.
+ * Uses /tmp on serverless platforms (Vercel) where process.cwd() is read-only.
+ * Falls back to project root in development for convenience. */
+function getStorePath(): string {
+  // On Vercel or other serverless platforms, use /tmp (writable)
+  if (process.env.VERCEL || process.env.AWS_LAMBDA_FUNCTION_NAME) {
+    return '/tmp/.medicoplace-dev-store.json';
+  }
+  return path.join(process.cwd(), '.medicoplace-dev-store.json');
+}
+
+const DEV_STORE_PATH = getStorePath();
 
 export interface InMemoryUser {
   id: string;

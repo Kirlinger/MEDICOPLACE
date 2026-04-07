@@ -100,7 +100,14 @@ export async function POST(request: NextRequest) {
   }
 
   // Create session
-  const token = await createSessionToken(userId, role);
+  const token = await createSessionToken({
+    userId,
+    role,
+    firstName,
+    lastName,
+    email,
+    phone,
+  });
   await setSessionCookie(token);
 
   // Audit log

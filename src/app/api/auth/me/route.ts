@@ -2,6 +2,10 @@
  * GET /api/auth/me
  * Return the current authenticated user's profile.
  * Also ensures a CSRF token cookie exists on each request.
+ *
+ * When a valid JWT session exists but the user is not found in the database
+ * or in-memory store (e.g. serverless cold start on Vercel without Supabase),
+ * the endpoint returns the profile data embedded in the JWT itself.
  */
 import { getSession } from '@/lib/server/auth';
 import { getSupabaseAdmin, isDatabaseConfigured, memoryStore } from '@/lib/server/db';
@@ -58,6 +62,21 @@ export async function GET() {
         address: memUser.address || '',
       };
     }
+  }
+
+  // Fallback: if the user isn't found in DB/memory but the JWT session is valid,
+  // return the profile data embedded in the token. This handles serverless cold
+  // starts where the in-memory store is empty.
+  if (!user && session.firstName && session.email) {
+    user = {
+      id: session.userId,
+      firstName: session.firstName,
+      lastName: session.lastName,
+      email: session.email,
+      phone: session.phone || '',
+      dateOfBirth: '',
+      address: '',
+    };
   }
 
   return Response.json({ user }, {
