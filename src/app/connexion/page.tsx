@@ -11,7 +11,7 @@ import Button from '@/components/ui/Button';
 
 export default function ConnexionPage() {
   const router = useRouter();
-  const { login, isLocked } = useAuth();
+  const { login } = useAuth();
   const [loading, setLoading] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -20,11 +20,6 @@ export default function ConnexionPage() {
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setError('');
-
-    if (isLocked) {
-      setError('Trop de tentatives. Veuillez patienter quelques minutes.');
-      return;
-    }
 
     if (!email.trim() || !password.trim()) {
       setError('Veuillez remplir tous les champs.');
@@ -77,7 +72,7 @@ export default function ConnexionPage() {
               </label>
               <Link href="/mot-de-passe-oublie" className="text-sm font-medium text-primary-600 hover:text-primary-700">Mot de passe oublié ?</Link>
             </div>
-            <Button type="submit" fullWidth loading={loading} size="lg" disabled={isLocked}>Se connecter</Button>
+            <Button type="submit" fullWidth loading={loading} size="lg">Se connecter</Button>
           </form>
           <p className="mt-6 text-center text-sm text-gray-500">Pas encore de compte ?{' '}<Link href="/inscription" className="font-semibold text-primary-600 hover:text-primary-700">Créer un compte</Link></p>
         </div>

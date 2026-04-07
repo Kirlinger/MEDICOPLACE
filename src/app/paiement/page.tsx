@@ -3,14 +3,17 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { useCart } from '@/lib/cart-context';
+import { useAuth } from '@/lib/auth-context';
 import { formatPrice } from '@/lib/utils';
 import { isValidName, isValidPhone, isValidAddress } from '@/lib/validation';
+import { apiRequest } from '@/lib/api-client';
 import { ShieldCheck, Lock, CheckCircle, AlertCircle } from 'lucide-react';
 import Input from '@/components/ui/Input';
 import Button from '@/components/ui/Button';
 
 export default function CheckoutPage() {
   const { items, totalPrice, clearCart } = useCart();
+  const { isAuthenticated } = useAuth();
   const [loading, setLoading] = useState(false);
   const [orderPlaced, setOrderPlaced] = useState(false);
   const [orderId, setOrderId] = useState('');
@@ -47,11 +50,45 @@ export default function CheckoutPage() {
     }
 
     setLoading(true);
-    await new Promise((resolve) => setTimeout(resolve, 1500));
-    setOrderId('CMD-' + crypto.randomUUID().substring(0, 8).toUpperCase());
-    clearCart();
-    setOrderPlaced(true);
-    setLoading(false);
+
+    try {
+      if (isAuthenticated) {
+        // Submit order via API
+        const { ok, data } = await apiRequest<{ success?: boolean; orderId?: string; error?: string }>(
+          '/api/orders',
+          {
+            method: 'POST',
+            body: {
+              items: items.map((item) => ({
+                id: item.id,
+                name: item.name,
+                quantity: item.quantity,
+                price: item.price,
+              })),
+              shippingAddress: form,
+            },
+          }
+        );
+
+        if (ok && data.orderId) {
+          setOrderId(data.orderId.substring(0, 8).toUpperCase());
+          clearCart();
+          setOrderPlaced(true);
+        } else {
+          setError(data.error || 'Erreur lors de la création de la commande.');
+        }
+      } else {
+        // Guest checkout — client-side only
+        await new Promise((resolve) => setTimeout(resolve, 1500));
+        setOrderId('CMD-' + crypto.randomUUID().substring(0, 8).toUpperCase());
+        clearCart();
+        setOrderPlaced(true);
+      }
+    } catch {
+      setError('Erreur de connexion. Veuillez réessayer.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   if (orderPlaced) {

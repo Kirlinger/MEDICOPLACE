@@ -6,14 +6,14 @@ import { useEffect } from 'react';
 import DashboardSidebar from '@/components/dashboard/DashboardSidebar';
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, isLoading } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
-    if (!isAuthenticated) router.push('/connexion');
-  }, [isAuthenticated, router]);
+    if (!isLoading && !isAuthenticated) router.push('/connexion');
+  }, [isAuthenticated, isLoading, router]);
 
-  if (!isAuthenticated) {
+  if (isLoading || !isAuthenticated) {
     return <div className="flex min-h-[60vh] items-center justify-center"><div className="h-8 w-8 animate-spin rounded-full border-4 border-primary-200 border-t-primary-600" /></div>;
   }
 

@@ -4,11 +4,12 @@ import { useState } from 'react';
 import { useAuth } from '@/lib/auth-context';
 import { User, Save, AlertCircle } from 'lucide-react';
 import { isValidEmail, isValidPhone, isValidName } from '@/lib/validation';
+import { apiRequest } from '@/lib/api-client';
 import Input from '@/components/ui/Input';
 import Button from '@/components/ui/Button';
 
 export default function ProfilePage() {
-  const { user } = useAuth();
+  const { user, refreshUser } = useAuth();
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
@@ -38,9 +39,23 @@ export default function ProfilePage() {
     }
 
     setSaving(true);
-    await new Promise((r) => setTimeout(r, 800));
-    setSaving(false);
-    setSuccess(true);
+    try {
+      const { ok, data } = await apiRequest<{ success?: boolean; error?: string }>(
+        '/api/users/profile',
+        { method: 'PATCH', body: form }
+      );
+
+      if (ok) {
+        setSuccess(true);
+        await refreshUser();
+      } else {
+        setError(data.error || 'Erreur lors de la mise à jour du profil.');
+      }
+    } catch {
+      setError('Erreur de connexion. Veuillez réessayer.');
+    } finally {
+      setSaving(false);
+    }
   };
 
   return (

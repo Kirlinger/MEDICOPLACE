@@ -1,5 +1,8 @@
 import type { NextConfig } from "next";
 
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
+const supabaseDomain = supabaseUrl ? new URL(supabaseUrl).hostname : '';
+
 const securityHeaders = [
   {
     key: 'X-DNS-Prefetch-Control',
@@ -35,9 +38,9 @@ const securityHeaders = [
       "default-src 'self'",
       "script-src 'self' 'unsafe-inline'",
       "style-src 'self' 'unsafe-inline'",
-      "img-src 'self' data: blob:",
+      `img-src 'self' data: blob:${supabaseDomain ? ` https://${supabaseDomain}` : ''}`,
       "font-src 'self'",
-      "connect-src 'self'",
+      `connect-src 'self'${supabaseDomain ? ` https://${supabaseDomain}` : ''}`,
       "frame-ancestors 'none'",
       "base-uri 'self'",
       "form-action 'self'",

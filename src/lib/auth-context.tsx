@@ -2,50 +2,54 @@
 
 import { createContext, useContext, useState, useCallback, useEffect, useRef, ReactNode } from 'react';
 import { User } from '@/types';
+import { apiRequest } from '@/lib/api-client';
 
 interface AuthContextType {
   user: User | null;
   isAuthenticated: boolean;
+  isLoading: boolean;
   login: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
   register: (data: Partial<User> & { password: string }) => Promise<{ success: boolean; error?: string }>;
   logout: () => void;
-  loginAttempts: number;
-  isLocked: boolean;
+  refreshUser: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 const SESSION_TIMEOUT_MS = 30 * 60 * 1000; // 30 minutes of inactivity
-// Production lockout constants — used when real backend auth is integrated
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const MAX_LOGIN_ATTEMPTS = 5;
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const LOCKOUT_DURATION_MS = 5 * 60 * 1000; // 5 minutes
-
-const demoUser: User = {
-  id: '1',
-  firstName: 'Marie',
-  lastName: 'Dupont',
-  email: 'marie.dupont@email.com',
-  phone: '+509 34 12 5678',
-  dateOfBirth: '1990-03-15',
-  address: 'Pétion-Ville, Port-au-Prince',
-};
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
-  const [loginAttempts, setLoginAttempts] = useState(0);
-  const [lockoutUntil, setLockoutUntil] = useState<number | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
   const sessionTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const [isLocked, setIsLocked] = useState(false);
+  // Fetch current user from server on mount
+  const refreshUser = useCallback(async () => {
+    try {
+      const { ok, data } = await apiRequest<{ user: User | null }>('/api/auth/me');
+      if (ok && data.user) {
+        setUser(data.user);
+      } else {
+        setUser(null);
+      }
+    } catch {
+      setUser(null);
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    refreshUser();
+  }, [refreshUser]);
 
   // Session timeout: auto-logout after inactivity
   const resetSessionTimeout = useCallback(() => {
     if (sessionTimeoutRef.current) {
       clearTimeout(sessionTimeoutRef.current);
     }
-    sessionTimeoutRef.current = setTimeout(() => {
+    sessionTimeoutRef.current = setTimeout(async () => {
+      await apiRequest('/api/auth/logout', { method: 'POST' });
       setUser(null);
     }, SESSION_TIMEOUT_MS);
   }, []);
@@ -66,45 +70,31 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [user, resetSessionTimeout]);
 
   const login = useCallback(async (email: string, password: string): Promise<{ success: boolean; error?: string }> => {
-    // Check lockout
-    if (lockoutUntil && Date.now() < lockoutUntil) {
-      const remainingMinutes = Math.ceil((lockoutUntil - Date.now()) / 60000);
-      return { success: false, error: `Compte temporairement verrouillé. Réessayez dans ${remainingMinutes} minute(s).` };
-    }
-
-    // Reset lockout if expired
-    if (lockoutUntil && Date.now() >= lockoutUntil) {
-      setLockoutUntil(null);
-      setLoginAttempts(0);
-      setIsLocked(false);
-    }
-
-    // Validate inputs
+    // Client-side validation
     if (!email.trim() || !password.trim()) {
       return { success: false, error: 'Veuillez remplir tous les champs.' };
     }
 
-    // Simulate network delay (constant time to prevent timing attacks)
-    await new Promise((resolve) => setTimeout(resolve, 800));
+    try {
+      const { ok, data, status } = await apiRequest<{ success?: boolean; error?: string; user?: User }>(
+        '/api/auth/login',
+        { method: 'POST', body: { email, password } }
+      );
 
-    // Demo mode: all logins succeed. In production, a failed login would:
-    // 1. Increment loginAttempts
-    // 2. If loginAttempts >= MAX_LOGIN_ATTEMPTS, set lockout
-    // Example for production backend integration:
-    // const newAttempts = loginAttempts + 1;
-    // setLoginAttempts(newAttempts);
-    // if (newAttempts >= MAX_LOGIN_ATTEMPTS) {
-    //   setLockoutUntil(Date.now() + LOCKOUT_DURATION_MS);
-    //   setIsLocked(true);
-    //   return { success: false, error: 'Trop de tentatives. Compte verrouillé pour 5 minutes.' };
-    // }
+      if (ok && data.user) {
+        setUser(data.user);
+        return { success: true };
+      }
 
-    setUser(demoUser);
-    setLoginAttempts(0);
-    setLockoutUntil(null);
-    setIsLocked(false);
-    return { success: true };
-  }, [lockoutUntil]);
+      if (status === 429) {
+        return { success: false, error: 'Trop de tentatives. Veuillez patienter quelques minutes.' };
+      }
+
+      return { success: false, error: data.error || 'Identifiants incorrects.' };
+    } catch {
+      return { success: false, error: 'Erreur de connexion. Veuillez réessayer.' };
+    }
+  }, []);
 
   const register = useCallback(
     async (data: Partial<User> & { password: string }): Promise<{ success: boolean; error?: string }> => {
@@ -112,27 +102,46 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return { success: false, error: 'Veuillez remplir tous les champs obligatoires.' };
       }
 
-      // Simulate network delay
-      await new Promise((resolve) => setTimeout(resolve, 800));
+      try {
+        const { ok, data: resData, status } = await apiRequest<{ success?: boolean; error?: string; user?: User }>(
+          '/api/auth/register',
+          {
+            method: 'POST',
+            body: {
+              firstName: data.firstName,
+              lastName: data.lastName,
+              email: data.email,
+              phone: data.phone || '',
+              password: data.password,
+            },
+          }
+        );
 
-      setUser({
-        ...demoUser,
-        firstName: data.firstName || demoUser.firstName,
-        lastName: data.lastName || demoUser.lastName,
-        email: data.email || demoUser.email,
-      });
-      return { success: true };
+        if (ok && resData.user) {
+          setUser(resData.user);
+          return { success: true };
+        }
+
+        if (status === 429) {
+          return { success: false, error: 'Trop de tentatives. Veuillez patienter.' };
+        }
+
+        return { success: false, error: resData.error || 'Erreur lors de la création du compte.' };
+      } catch {
+        return { success: false, error: 'Erreur de connexion. Veuillez réessayer.' };
+      }
     },
     []
   );
 
-  const logout = useCallback(() => {
+  const logout = useCallback(async () => {
+    await apiRequest('/api/auth/logout', { method: 'POST' });
     setUser(null);
     if (sessionTimeoutRef.current) clearTimeout(sessionTimeoutRef.current);
   }, []);
 
   return (
-    <AuthContext.Provider value={{ user, isAuthenticated: !!user, login, register, logout, loginAttempts, isLocked }}>
+    <AuthContext.Provider value={{ user, isAuthenticated: !!user, isLoading, login, register, logout, refreshUser }}>
       {children}
     </AuthContext.Provider>
   );
