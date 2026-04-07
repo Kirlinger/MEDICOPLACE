@@ -9,7 +9,7 @@ import Button from '@/components/ui/Button';
 
 export default function CartPage() {
   const { items, removeItem, updateQuantity, totalPrice, totalItems } = useCart();
-  const shipping = totalPrice >= 49 ? 0 : 4.99;
+  const shipping = totalPrice >= 500 ? 0 : 75;
 
   if (items.length === 0) {
     return (
@@ -63,7 +63,7 @@ export default function CartPage() {
                 <div className="flex justify-between text-sm"><span className="text-gray-500">Livraison</span><span className="font-medium">{shipping === 0 ? 'Gratuite' : formatPrice(shipping)}</span></div>
               </div>
               <div className="flex justify-between py-4 text-lg font-bold"><span>Total</span><span>{formatPrice(totalPrice + shipping)}</span></div>
-              {shipping > 0 && <p className="mb-4 text-xs text-gray-400">Livraison gratuite dès 49€ d&apos;achat</p>}
+              {shipping > 0 && <p className="mb-4 text-xs text-gray-400">Livraison gratuite dès 500 Gdes d&apos;achat</p>}
               <Link href="/paiement"><Button fullWidth size="lg"><ArrowRight className="h-4 w-4" /> Passer commande</Button></Link>
             </div>
           </div>

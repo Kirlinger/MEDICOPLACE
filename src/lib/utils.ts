@@ -3,9 +3,11 @@ export function cn(...classes: (string | boolean | undefined | null)[]): string 
 }
 
 export function formatPrice(price: number): string {
-  return new Intl.NumberFormat('fr-FR', {
+  return new Intl.NumberFormat('fr-HT', {
     style: 'currency',
-    currency: 'EUR',
+    currency: 'HTG',
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 2,
   }).format(price);
 }
 

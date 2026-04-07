@@ -13,7 +13,7 @@ export default function CheckoutPage() {
   const [loading, setLoading] = useState(false);
   const [orderPlaced, setOrderPlaced] = useState(false);
 
-  const shipping = totalPrice >= 49 ? 0 : 4.99;
+  const shipping = totalPrice >= 500 ? 0 : 75;
   const grandTotal = totalPrice + shipping;
 
   const handleSubmit = async (e: React.FormEvent) => {

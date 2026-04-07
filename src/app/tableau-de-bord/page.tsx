@@ -11,8 +11,8 @@ const upcomingAppointments = [
 ];
 
 const recentOrders = [
-  { id: 'CMD-001', date: '2026-03-28', total: '79,99 €', status: 'Livré' },
-  { id: 'CMD-002', date: '2026-04-01', total: '34,98 €', status: 'En cours' },
+  { id: 'CMD-001', date: '2026-03-28', total: '350 Gdes', status: 'Livré' },
+  { id: 'CMD-002', date: '2026-04-01', total: '270 Gdes', status: 'En cours' },
 ];
 
 export default function DashboardPage() {

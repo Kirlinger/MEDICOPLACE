@@ -59,7 +59,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
               <Button size="lg" onClick={() => { for (let i = 0; i < quantity; i++) addItem(product); }}><ShoppingCart className="h-4 w-4" /> Ajouter au panier</Button>
             </div>
             <div className="space-y-3 rounded-xl bg-gray-50 p-5">
-              {[{ icon: Truck, text: 'Livraison gratuite dès 49€' }, { icon: ShieldCheck, text: 'Paiement 100% sécurisé' }, { icon: RotateCcw, text: 'Retour gratuit sous 30 jours' }].map((item) => (
+              {[{ icon: Truck, text: 'Livraison gratuite dès 500 Gdes' }, { icon: ShieldCheck, text: 'Paiement 100% sécurisé' }, { icon: RotateCcw, text: 'Retour gratuit sous 30 jours' }].map((item) => (
                 <div key={item.text} className="flex items-center gap-3 text-sm text-gray-600"><item.icon className="h-5 w-5 text-primary-600" /> {item.text}</div>
               ))}
             </div>

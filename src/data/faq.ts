@@ -27,10 +27,10 @@ export const faqs: FAQ[] = [
   },
   {
     question: 'Quels modes de paiement acceptez-vous ?',
-    answer: "Nous acceptons les cartes bancaires (Visa, Mastercard, CB), PayPal, et le paiement en 3 fois sans frais pour les commandes supérieures à 100€. Toutes les transactions sont sécurisées par protocole SSL.",
+    answer: "Nous acceptons les cartes bancaires (Visa, Mastercard), les transferts MonCash, et le paiement en plusieurs fois pour les commandes supérieures à 5 000 Gdes. Toutes les transactions sont sécurisées par protocole SSL.",
   },
   {
     question: 'Comment contacter le service client ?',
-    answer: "Notre service client est disponible du lundi au samedi de 8h à 20h. Vous pouvez nous contacter par téléphone au 01 23 45 67 89, par email à contact@medicoplace.com, ou via le formulaire de contact sur notre site.",
+    answer: "Notre service client sera bientôt disponible. En attendant, consultez notre page Contact pour les informations de mise à jour.",
   },
 ];

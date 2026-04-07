@@ -1,12 +1,12 @@
 'use client';
 
 const history = [
-  { id: 'CMD-005', date: '2026-04-01', type: 'Commande', description: 'Tensiomètre Numérique Pro, Vitamine D3', amount: '104,98 €', status: 'Livré' },
-  { id: 'CST-003', date: '2026-03-28', type: 'Consultation', description: 'Dr. Sophie Martin — Médecine Générale', amount: '25,00 €', status: 'Terminée' },
-  { id: 'CMD-004', date: '2026-03-20', type: 'Commande', description: 'Kit Premiers Secours Premium', amount: '64,99 €', status: 'Livré' },
-  { id: 'CST-002', date: '2026-03-15', type: 'Téléconsultation', description: 'Dr. Amina El-Fassi — Cardiologie', amount: '50,00 €', status: 'Terminée' },
-  { id: 'CMD-003', date: '2026-03-10', type: 'Commande', description: 'Oxymètre de Pouls Premium', amount: '49,99 €', status: 'Livré' },
-  { id: 'CST-001', date: '2026-02-28', type: 'Consultation', description: 'Dr. Pierre Leroy — Cardiologie', amount: '50,00 €', status: 'Terminée' },
+  { id: 'CMD-005', date: '2026-04-01', type: 'Commande', description: 'Paracétamol 500 mg, Multivitamines Adulte', amount: '600 Gdes', status: 'Livré' },
+  { id: 'CST-003', date: '2026-03-28', type: 'Consultation', description: 'Dr. Sophie Martin — Médecine Générale', amount: '1 500 Gdes', status: 'Terminée' },
+  { id: 'CMD-004', date: '2026-03-20', type: 'Commande', description: 'Sérum de Réhydratation Orale (x10)', amount: '120 Gdes', status: 'Livré' },
+  { id: 'CST-002', date: '2026-03-15', type: 'Téléconsultation', description: 'Dr. Amina El-Fassi — Cardiologie', amount: '2 500 Gdes', status: 'Terminée' },
+  { id: 'CMD-003', date: '2026-03-10', type: 'Commande', description: 'Amoxicilline 500 mg', amount: '350 Gdes', status: 'Livré' },
+  { id: 'CST-001', date: '2026-02-28', type: 'Consultation', description: 'Dr. Pierre Leroy — Cardiologie', amount: '2 500 Gdes', status: 'Terminée' },
 ];
 
 export default function HistoryPage() {

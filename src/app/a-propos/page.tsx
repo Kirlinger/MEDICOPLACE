@@ -36,12 +36,12 @@ export default function AboutPage() {
               <div className="space-y-4 text-gray-600">
                 <p>Fondée en 2024, MEDICOPLACE s&apos;est rapidement imposée comme la référence en matière de services de santé numériques en France.</p>
                 <p>Notre plateforme combine consultations médicales, pharmacie en ligne et téléconsultation dans un écosystème unique, pensé pour simplifier le parcours de soins des patients.</p>
-                <p>Avec plus de 500 médecins partenaires et 50 000 patients inscrits, nous construisons chaque jour le futur de la santé connectée.</p>
+                <p>Avec plus de 500 médecins partenaires et une communauté grandissante de patients satisfaits, nous construisons chaque jour le futur de la santé connectée.</p>
               </div>
             </div>
             <div className="grid grid-cols-2 gap-4">
               {[
-                { value: '50 000+', label: 'Patients actifs' },
+                { value: '100%', label: 'Patients satisfaits' },
                 { value: '500+', label: 'Médecins partenaires' },
                 { value: '98%', label: 'Satisfaction client' },
                 { value: '24/7', label: 'Disponibilité' },
