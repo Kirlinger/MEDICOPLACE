@@ -32,7 +32,7 @@ export default function HeroSection() {
         </div>
         <div className="mt-16 grid gap-4 sm:grid-cols-3 sm:gap-6">
           {[
-            { icon: Shield, title: 'Données sécurisées', desc: 'Chiffrement de bout en bout et conformité RGPD' },
+            { icon: Shield, title: 'Données sécurisées', desc: 'Chiffrement de bout en bout et protection maximale' },
             { icon: Clock, title: 'Disponible 24h/24', desc: 'Accédez à vos services de santé à tout moment' },
             { icon: Award, title: 'Médecins certifiés', desc: 'Réseau de professionnels de santé vérifiés' },
           ].map((item) => (

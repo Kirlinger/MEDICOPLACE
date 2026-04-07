@@ -11,9 +11,9 @@ export const services: Service[] = [
   {
     id: '2',
     title: 'Téléconsultation',
-    description: "Consultez un médecin depuis chez vous par vidéo. Rapide, sécurisé et remboursé par l'assurance maladie.",
+    description: "Consultez un médecin depuis chez vous par vidéo. Rapide, sécurisé et accessible partout en Haïti.",
     icon: 'Video',
-    features: ['Disponible 7j/7', 'Vidéo HD sécurisée', 'Ordonnance en ligne', 'Remboursement assuré'],
+    features: ['Disponible 7j/7', 'Vidéo HD sécurisée', 'Ordonnance en ligne', 'Tarifs accessibles'],
   },
   {
     id: '3',

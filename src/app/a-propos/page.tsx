@@ -8,10 +8,10 @@ const values = [
 ];
 
 const team = [
-  { name: 'Dr. Sophie Martin', role: 'Directrice Médicale', desc: "Spécialiste en médecine interne avec 15 ans d'expérience hospitalière." },
-  { name: 'Thomas Bernard', role: 'Directeur Technique', desc: "Expert en technologies de santé et en systèmes d'information médicale." },
-  { name: 'Dr. Amina El-Fassi', role: 'Responsable Téléconsultation', desc: 'Pionnière de la télémédecine en France, cardiologue de formation.' },
-  { name: 'Lucas Petit', role: 'Responsable Pharmacie', desc: 'Pharmacien diplômé avec une expertise en e-commerce santé.' },
+  { name: 'Dr. Marie-Claire Joseph', role: 'Directrice Médicale', desc: "Spécialiste en médecine interne avec 15 ans d'expérience hospitalière en Haïti." },
+  { name: 'Jean-Baptiste Pierre', role: 'Directeur Technique', desc: "Expert en technologies de santé et en systèmes d'information médicale." },
+  { name: 'Dr. Farah Étienne', role: 'Responsable Téléconsultation', desc: 'Pionnière de la télémédecine en Haïti, cardiologue de formation.' },
+  { name: 'Stéphane Louis', role: 'Responsable Pharmacie', desc: 'Pharmacien diplômé avec une expertise en e-commerce santé.' },
 ];
 
 export default function AboutPage() {
@@ -34,7 +34,7 @@ export default function AboutPage() {
               <span className="mb-3 inline-block text-sm font-semibold uppercase tracking-wider text-primary-600">Notre mission</span>
               <h2 className="mb-6 text-3xl font-bold text-secondary-900">Rendre la santé accessible et moderne</h2>
               <div className="space-y-4 text-gray-600">
-                <p>Fondée en 2024, MEDICOPLACE s&apos;est rapidement imposée comme la référence en matière de services de santé numériques en France.</p>
+                <p>Fondée en 2024, MEDICOPLACE s&apos;est rapidement imposée comme la référence en matière de services de santé numériques en Haïti.</p>
                 <p>Notre plateforme combine consultations médicales, pharmacie en ligne et téléconsultation dans un écosystème unique, pensé pour simplifier le parcours de soins des patients.</p>
                 <p>Avec plus de 500 médecins partenaires et une communauté grandissante de patients satisfaits, nous construisons chaque jour le futur de la santé connectée.</p>
               </div>

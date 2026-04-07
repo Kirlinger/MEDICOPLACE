@@ -11,7 +11,7 @@ export const faqs: FAQ[] = [
   },
   {
     question: 'La téléconsultation est-elle remboursée ?',
-    answer: "Oui, les téléconsultations réalisées sur MEDICOPLACE sont remboursées par l'Assurance Maladie dans les mêmes conditions qu'une consultation en cabinet. Le tiers payant est disponible pour les bénéficiaires.",
+    answer: "Oui, les téléconsultations réalisées sur MEDICOPLACE peuvent être couvertes par les principaux assureurs haïtiens. Vérifiez auprès de votre assurance les conditions de remboursement applicables.",
   },
   {
     question: 'Comment fonctionne la pharmacie en ligne ?',
@@ -19,7 +19,7 @@ export const faqs: FAQ[] = [
   },
   {
     question: 'Mes données médicales sont-elles sécurisées ?',
-    answer: "Absolument. MEDICOPLACE utilise un chiffrement de bout en bout et respecte strictement le RGPD et la réglementation HDS (Hébergeur de Données de Santé). Vos données sont stockées sur des serveurs certifiés et ne sont jamais partagées sans votre consentement.",
+    answer: "Absolument. MEDICOPLACE utilise un chiffrement de bout en bout et respecte les plus hauts standards de protection des données de santé. Vos données sont stockées sur des serveurs sécurisés et ne sont jamais partagées sans votre consentement.",
   },
   {
     question: 'Puis-je annuler ou modifier un rendez-vous ?',

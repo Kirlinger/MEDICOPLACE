@@ -3,7 +3,7 @@ import Link from 'next/link';
 
 const features = [
   { icon: Video, title: 'Vidéo HD sécurisée', desc: 'Consultations en vidéo haute définition avec chiffrement de bout en bout.' },
-  { icon: Shield, title: 'Confidentialité garantie', desc: 'Vos données médicales sont protégées et conformes au RGPD.' },
+  { icon: Shield, title: 'Confidentialité garantie', desc: 'Vos données médicales sont protégées avec les plus hauts standards de sécurité.' },
   { icon: Clock, title: 'Disponible 7j/7', desc: 'Consultez un médecin du lundi au dimanche, de 7h à 23h.' },
   { icon: MessageSquare, title: 'Chat intégré', desc: 'Échangez par messagerie avec votre médecin avant et après la consultation.' },
   { icon: FileCheck, title: 'Ordonnance en ligne', desc: 'Recevez votre ordonnance directement dans votre espace patient.' },
@@ -82,7 +82,7 @@ export default function TeleconsultationPage() {
             <h2 className="mb-4 text-center text-2xl font-bold text-secondary-900">Pourquoi choisir la téléconsultation MEDICOPLACE ?</h2>
             <div className="mt-8 space-y-4">
               {[
-                'Consultation remboursée par l\'Assurance Maladie',
+                'Consultation à tarif accessible pour tous',
                 'Médecins diplômés et vérifiés',
                 'Disponible 7 jours sur 7',
                 'Ordonnance électronique envoyée directement en pharmacie',
