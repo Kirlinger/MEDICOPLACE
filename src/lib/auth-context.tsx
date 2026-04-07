@@ -91,7 +91,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
 
       return { success: false, error: data.error || 'Identifiants incorrects.' };
-    } catch {
+    } catch (err) {
+      console.error('[AUTH] Login error:', err);
       return { success: false, error: 'Erreur de connexion. Veuillez réessayer.' };
     }
   }, []);
@@ -127,7 +128,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }
 
         return { success: false, error: resData.error || 'Erreur lors de la création du compte.' };
-      } catch {
+      } catch (err) {
+        console.error('[AUTH] Register error:', err);
         return { success: false, error: 'Erreur de connexion. Veuillez réessayer.' };
       }
     },
