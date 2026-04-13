@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Mail, Lock, Plus, AlertCircle } from 'lucide-react';
 import { useAuth } from '@/lib/auth-context';
+import { useLanguage } from '@/lib/language-context';
 import { isValidEmail } from '@/lib/validation';
 import Input from '@/components/ui/Input';
 import Button from '@/components/ui/Button';
@@ -12,6 +13,7 @@ import Button from '@/components/ui/Button';
 export default function ConnexionPage() {
   const router = useRouter();
   const { login } = useAuth();
+  const { t } = useLanguage();
   const [loading, setLoading] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -22,12 +24,12 @@ export default function ConnexionPage() {
     setError('');
 
     if (!email.trim() || !password.trim()) {
-      setError('Veuillez remplir tous les champs.');
+      setError(t('auth.errorFillAll'));
       return;
     }
 
     if (!isValidEmail(email)) {
-      setError('Veuillez entrer une adresse email valide.');
+      setError(t('auth.errorInvalidEmail'));
       return;
     }
 
@@ -37,7 +39,7 @@ export default function ConnexionPage() {
       if (result.success) {
         router.push('/tableau-de-bord');
       } else {
-        setError(result.error || 'Identifiants incorrects.');
+        setError(result.error || t('auth.errorCredentials'));
       }
     } finally { setLoading(false); }
   };
@@ -53,8 +55,8 @@ export default function ConnexionPage() {
         </div>
         <div className="card-premium p-8">
           <div className="mb-6 text-center">
-            <h1 className="text-2xl font-bold text-secondary-900">Bienvenue</h1>
-            <p className="mt-2 text-sm text-gray-500">Connectez-vous à votre espace MEDICOPLACE</p>
+            <h1 className="text-2xl font-bold text-secondary-900">{t('auth.welcome')}</h1>
+            <p className="mt-2 text-sm text-gray-500">{t('auth.loginSubtitle')}</p>
           </div>
           {error && (
             <div className="mb-4 flex items-center gap-2 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">
@@ -63,20 +65,21 @@ export default function ConnexionPage() {
             </div>
           )}
           <form onSubmit={handleSubmit} className="space-y-4" noValidate>
-            <Input label="Email" type="email" placeholder="votre@email.com" icon={<Mail className="h-4 w-4" />} value={email} onChange={(e) => setEmail(e.target.value)} required autoComplete="email" maxLength={254} />
-            <Input label="Mot de passe" type="password" placeholder="••••••••" icon={<Lock className="h-4 w-4" />} value={password} onChange={(e) => setPassword(e.target.value)} required autoComplete="current-password" maxLength={128} />
+            <Input label={t('auth.email')} type="email" placeholder="votre@email.com" icon={<Mail className="h-4 w-4" />} value={email} onChange={(e) => setEmail(e.target.value)} required autoComplete="email" maxLength={254} />
+            <Input label={t('auth.password')} type="password" placeholder="••••••••" icon={<Lock className="h-4 w-4" />} value={password} onChange={(e) => setPassword(e.target.value)} required autoComplete="current-password" maxLength={128} />
             <div className="flex items-center justify-between">
               <label className="flex items-center gap-2">
                 <input type="checkbox" className="h-4 w-4 rounded border-gray-300 text-primary-600 focus:ring-primary-500" />
-                <span className="text-sm text-gray-600">Se souvenir de moi</span>
+                <span className="text-sm text-gray-600">{t('auth.rememberMe')}</span>
               </label>
-              <Link href="/mot-de-passe-oublie" className="text-sm font-medium text-primary-600 hover:text-primary-700">Mot de passe oublié ?</Link>
+              <Link href="/mot-de-passe-oublie" className="text-sm font-medium text-primary-600 hover:text-primary-700">{t('auth.forgotPassword')}</Link>
             </div>
-            <Button type="submit" fullWidth loading={loading} size="lg">Se connecter</Button>
+            <Button type="submit" fullWidth loading={loading} size="lg">{t('auth.loginBtn')}</Button>
           </form>
-          <p className="mt-6 text-center text-sm text-gray-500">Pas encore de compte ?{' '}<Link href="/inscription" className="font-semibold text-primary-600 hover:text-primary-700">Créer un compte</Link></p>
+          <p className="mt-6 text-center text-sm text-gray-500">{t('auth.noAccount')}{' '}<Link href="/inscription" className="font-semibold text-primary-600 hover:text-primary-700">{t('auth.createAccount')}</Link></p>
         </div>
       </div>
     </section>
   );
 }
+

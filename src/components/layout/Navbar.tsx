@@ -6,15 +6,9 @@ import { usePathname } from 'next/navigation';
 import { Menu, X, ShoppingCart, Plus, User, LogOut, LayoutDashboard, ChevronDown } from 'lucide-react';
 import { useCart } from '@/lib/cart-context';
 import { useAuth } from '@/lib/auth-context';
+import { useLanguage } from '@/lib/language-context';
 import { cn } from '@/lib/utils';
-
-const navLinks = [
-  { href: '/', label: 'Accueil' },
-  { href: '/services', label: 'Services' },
-  { href: '/boutique', label: 'Boutique' },
-  { href: '/teleconsultation', label: 'Téléconsultation' },
-  { href: '/contact', label: 'Contact' },
-];
+import LanguageSelector from '@/components/ui/LanguageSelector';
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
@@ -23,6 +17,15 @@ export default function Navbar() {
   const pathname = usePathname();
   const { totalItems } = useCart();
   const { user, isAuthenticated, logout } = useAuth();
+  const { t } = useLanguage();
+
+  const navLinks = [
+    { href: '/', label: t('nav.home') },
+    { href: '/services', label: t('nav.services') },
+    { href: '/boutique', label: t('nav.boutique') },
+    { href: '/teleconsultation', label: t('nav.teleconsultation') },
+    { href: '/contact', label: t('nav.contact') },
+  ];
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 20);
@@ -69,6 +72,7 @@ export default function Navbar() {
           </div>
 
           <div className="hidden items-center gap-3 lg:flex">
+            <LanguageSelector />
             <Link href="/panier" className="relative rounded-lg p-2.5 text-gray-600 transition-colors hover:bg-gray-50 hover:text-gray-900">
               <ShoppingCart className="h-5 w-5" />
               {totalItems > 0 && (
@@ -92,27 +96,28 @@ export default function Navbar() {
                 {userMenuOpen && (
                   <div className="absolute right-0 mt-2 w-56 rounded-xl border border-gray-100 bg-white py-2 shadow-lg">
                     <Link href="/tableau-de-bord" onClick={closeMenus} className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50">
-                      <LayoutDashboard className="h-4 w-4" /> Tableau de bord
+                      <LayoutDashboard className="h-4 w-4" /> {t('nav.dashboard')}
                     </Link>
                     <Link href="/tableau-de-bord/profil" onClick={closeMenus} className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50">
-                      <User className="h-4 w-4" /> Mon profil
+                      <User className="h-4 w-4" /> {t('nav.profile')}
                     </Link>
                     <hr className="my-1 border-gray-100" />
                     <button onClick={() => { closeMenus(); logout(); }} className="flex w-full items-center gap-3 px-4 py-2.5 text-sm text-red-600 hover:bg-red-50">
-                      <LogOut className="h-4 w-4" /> Déconnexion
+                      <LogOut className="h-4 w-4" /> {t('nav.logout')}
                     </button>
                   </div>
                 )}
               </div>
             ) : (
               <div className="flex items-center gap-2">
-                <Link href="/connexion" className="rounded-lg px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50">Connexion</Link>
-                <Link href="/inscription" className="rounded-lg bg-primary-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-primary-700">Inscription</Link>
+                <Link href="/connexion" className="rounded-lg px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50">{t('nav.login')}</Link>
+                <Link href="/inscription" className="rounded-lg bg-primary-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-primary-700">{t('nav.register')}</Link>
               </div>
             )}
           </div>
 
           <div className="flex items-center gap-2 lg:hidden">
+            <LanguageSelector />
             <Link href="/panier" className="relative rounded-lg p-2 text-gray-600">
               <ShoppingCart className="h-5 w-5" />
               {totalItems > 0 && (
@@ -138,13 +143,13 @@ export default function Navbar() {
               <hr className="my-2 border-gray-100" />
               {isAuthenticated ? (
                 <>
-                  <Link href="/tableau-de-bord" onClick={closeMenus} className="rounded-lg px-4 py-2.5 text-sm font-medium text-gray-600 hover:bg-gray-50">Tableau de bord</Link>
-                  <button onClick={() => { closeMenus(); logout(); }} className="rounded-lg px-4 py-2.5 text-left text-sm font-medium text-red-600 hover:bg-red-50">Déconnexion</button>
+                  <Link href="/tableau-de-bord" onClick={closeMenus} className="rounded-lg px-4 py-2.5 text-sm font-medium text-gray-600 hover:bg-gray-50">{t('nav.dashboard')}</Link>
+                  <button onClick={() => { closeMenus(); logout(); }} className="rounded-lg px-4 py-2.5 text-left text-sm font-medium text-red-600 hover:bg-red-50">{t('nav.logout')}</button>
                 </>
               ) : (
                 <div className="flex flex-col gap-2 px-4 pt-2">
-                  <Link href="/connexion" onClick={closeMenus} className="rounded-lg border border-gray-200 px-4 py-2.5 text-center text-sm font-medium text-gray-700">Connexion</Link>
-                  <Link href="/inscription" onClick={closeMenus} className="rounded-lg bg-primary-600 px-4 py-2.5 text-center text-sm font-medium text-white">Inscription</Link>
+                  <Link href="/connexion" onClick={closeMenus} className="rounded-lg border border-gray-200 px-4 py-2.5 text-center text-sm font-medium text-gray-700">{t('nav.login')}</Link>
+                  <Link href="/inscription" onClick={closeMenus} className="rounded-lg bg-primary-600 px-4 py-2.5 text-center text-sm font-medium text-white">{t('nav.register')}</Link>
                 </div>
               )}
             </div>
@@ -154,3 +159,4 @@ export default function Navbar() {
     </header>
   );
 }
+
