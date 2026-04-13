@@ -5,6 +5,7 @@ import { Inbox } from 'lucide-react';
 import Link from 'next/link';
 import { apiRequest } from '@/lib/api-client';
 import { formatPrice } from '@/lib/utils';
+import { useLanguage } from '@/lib/language-context';
 
 interface Order {
   id: string;
@@ -18,6 +19,7 @@ interface Order {
 export default function HistoryPage() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
+  const { t } = useLanguage();
 
   useEffect(() => {
     async function fetchOrders() {
@@ -38,8 +40,8 @@ export default function HistoryPage() {
   return (
     <div className="space-y-6">
       <div className="card-premium p-6">
-        <h1 className="text-2xl font-bold text-secondary-900">Historique</h1>
-        <p className="mt-1 text-gray-500">Retrouvez l&apos;historique de vos commandes et consultations</p>
+        <h1 className="text-2xl font-bold text-secondary-900">{t('history.title')}</h1>
+        <p className="mt-1 text-gray-500">{t('history.subtitle')}</p>
       </div>
       {loading ? (
         <div className="card-premium flex items-center justify-center py-12">
@@ -48,9 +50,9 @@ export default function HistoryPage() {
       ) : orders.length === 0 ? (
         <div className="card-premium flex flex-col items-center justify-center py-12 text-center">
           <Inbox className="mb-3 h-12 w-12 text-gray-300" />
-          <p className="text-gray-500">Aucun historique pour le moment.</p>
-          <p className="mt-1 text-sm text-gray-400">Vos commandes et consultations apparaîtront ici.</p>
-          <Link href="/boutique" className="mt-4 text-sm font-medium text-primary-600 hover:text-primary-700">Découvrir la boutique</Link>
+          <p className="text-gray-500">{t('history.noHistory')}</p>
+          <p className="mt-1 text-sm text-gray-400">{t('history.noHistorySubtitle')}</p>
+          <Link href="/boutique" className="mt-4 text-sm font-medium text-primary-600 hover:text-primary-700">{t('history.discoverShop')}</Link>
         </div>
       ) : (
         <div className="card-premium overflow-hidden">
@@ -58,12 +60,12 @@ export default function HistoryPage() {
             <table className="w-full">
               <thead>
                 <tr className="border-b border-gray-100 bg-gray-50/50">
-                  <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">Référence</th>
-                  <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">Date</th>
-                  <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">Type</th>
-                  <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">Description</th>
-                  <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">Montant</th>
-                  <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">Statut</th>
+                  <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">{t('history.colRef')}</th>
+                  <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">{t('history.colDate')}</th>
+                  <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">{t('history.colType')}</th>
+                  <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">{t('history.colDescription')}</th>
+                  <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">{t('history.colAmount')}</th>
+                  <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">{t('history.colStatus')}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100">
@@ -71,7 +73,7 @@ export default function HistoryPage() {
                   <tr key={order.id} className="hover:bg-gray-50/50">
                     <td className="px-6 py-4 text-sm font-medium text-gray-900">CMD-{order.id.substring(0, 8).toUpperCase()}</td>
                     <td className="px-6 py-4 text-sm text-gray-500">{new Date(order.created_at).toLocaleDateString('fr-FR')}</td>
-                    <td className="px-6 py-4"><span className="rounded-full bg-blue-50 px-2.5 py-1 text-xs font-medium text-blue-700">Commande</span></td>
+                    <td className="px-6 py-4"><span className="rounded-full bg-blue-50 px-2.5 py-1 text-xs font-medium text-blue-700">{t('history.typeOrder')}</span></td>
                     <td className="px-6 py-4 text-sm text-gray-600">{order.items.slice(0, 3).map((i) => i.name).join(', ')}{order.items.length > 3 ? ` (+${order.items.length - 3})` : ''}</td>
                     <td className="px-6 py-4 text-sm font-semibold text-gray-900">{formatPrice(order.total)}</td>
                     <td className="px-6 py-4"><span className="rounded-full bg-gray-100 px-2.5 py-1 text-xs font-medium text-gray-700">{order.status}</span></td>
@@ -84,4 +86,14 @@ export default function HistoryPage() {
       )}
     </div>
   );
+}
+
+
+interface Order {
+  id: string;
+  items: Array<{ name: string; quantity: number; price: number }>;
+  total: number;
+  status: string;
+  payment_method: string;
+  created_at: string;
 }

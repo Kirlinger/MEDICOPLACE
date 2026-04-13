@@ -2,13 +2,21 @@
 
 import { useState } from 'react';
 import { ChevronDown, Search } from 'lucide-react';
-import { faqs } from '@/data/faq';
 import { cn } from '@/lib/utils';
 import Link from 'next/link';
+import { useLanguage } from '@/lib/language-context';
+
+const FAQ_COUNT = 8;
 
 export default function FAQPage() {
   const [openIndex, setOpenIndex] = useState<number | null>(0);
   const [search, setSearch] = useState('');
+  const { t } = useLanguage();
+
+  const faqs = Array.from({ length: FAQ_COUNT }, (_, i) => ({
+    question: t(`faq.q${i + 1}`),
+    answer: t(`faq.a${i + 1}`),
+  }));
 
   const filtered = faqs.filter(
     (faq) => faq.question.toLowerCase().includes(search.toLowerCase()) || faq.answer.toLowerCase().includes(search.toLowerCase())
@@ -19,12 +27,12 @@ export default function FAQPage() {
       <section className="bg-gradient-to-b from-primary-50 to-white py-20">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="mx-auto max-w-3xl text-center">
-            <span className="mb-3 inline-block text-sm font-semibold uppercase tracking-wider text-primary-600">FAQ</span>
-            <h1 className="mb-6 text-4xl font-bold text-secondary-900 sm:text-5xl">Questions fréquentes</h1>
-            <p className="mb-8 text-lg text-gray-600">Trouvez rapidement les réponses à vos questions sur MEDICOPLACE et nos services.</p>
+            <span className="mb-3 inline-block text-sm font-semibold uppercase tracking-wider text-primary-600">{t('faq.label')}</span>
+            <h1 className="mb-6 text-4xl font-bold text-secondary-900 sm:text-5xl">{t('faq.title')}</h1>
+            <p className="mb-8 text-lg text-gray-600">{t('faq.subtitle')}</p>
             <div className="relative mx-auto max-w-md">
               <Search className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
-              <input type="text" value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Rechercher une question..." maxLength={200} className="w-full rounded-xl border border-gray-200 py-3 pl-12 pr-4 text-sm focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20" />
+              <input type="text" value={search} onChange={(e) => setSearch(e.target.value)} placeholder={t('faq.searchPlaceholder')} maxLength={200} className="w-full rounded-xl border border-gray-200 py-3 pl-12 pr-4 text-sm focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20" />
             </div>
           </div>
         </div>
@@ -47,17 +55,18 @@ export default function FAQPage() {
             ))}
             {filtered.length === 0 && (
               <div className="py-12 text-center">
-                <p className="text-gray-500">Aucun résultat trouvé pour &quot;{search}&quot;</p>
+                <p className="text-gray-500">{t('faq.noResults')} &quot;{search}&quot;</p>
               </div>
             )}
           </div>
           <div className="mt-16 rounded-2xl bg-gray-50 p-8 text-center">
-            <h3 className="mb-2 text-xl font-bold text-gray-900">Vous n&apos;avez pas trouvé votre réponse ?</h3>
-            <p className="mb-6 text-sm text-gray-500">Notre équipe est disponible pour répondre à toutes vos questions.</p>
-            <Link href="/contact" className="inline-flex rounded-lg bg-primary-600 px-6 py-3 text-sm font-semibold text-white hover:bg-primary-700">Contactez-nous</Link>
+            <h3 className="mb-2 text-xl font-bold text-gray-900">{t('faq.notFoundTitle')}</h3>
+            <p className="mb-6 text-sm text-gray-500">{t('faq.notFoundSubtitle')}</p>
+            <Link href="/contact" className="inline-flex rounded-lg bg-primary-600 px-6 py-3 text-sm font-semibold text-white hover:bg-primary-700">{t('faq.contactUs')}</Link>
           </div>
         </div>
       </section>
     </>
   );
 }
+

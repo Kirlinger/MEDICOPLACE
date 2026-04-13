@@ -3,12 +3,14 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { useCart } from '@/lib/cart-context';
+import { useLanguage } from '@/lib/language-context';
 import { formatPrice } from '@/lib/utils';
 import { Minus, Plus, Trash2, ShoppingBag, ArrowRight } from 'lucide-react';
 import Button from '@/components/ui/Button';
 
 export default function CartPage() {
   const { items, removeItem, updateQuantity, totalPrice, totalItems } = useCart();
+  const { t } = useLanguage();
   const shipping = totalPrice >= 500 ? 0 : 75;
 
   if (items.length === 0) {
@@ -16,9 +18,9 @@ export default function CartPage() {
       <section className="flex min-h-[60vh] items-center justify-center px-4 py-20">
         <div className="text-center">
           <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-gray-100"><ShoppingBag className="h-10 w-10 text-gray-400" /></div>
-          <h1 className="mb-2 text-2xl font-bold text-gray-900">Votre panier est vide</h1>
-          <p className="mb-8 text-gray-500">Découvrez notre boutique pour trouver les produits qu&apos;il vous faut.</p>
-          <Link href="/boutique" className="inline-flex items-center gap-2 rounded-lg bg-primary-600 px-6 py-3 text-sm font-semibold text-white hover:bg-primary-700">Explorer la boutique <ArrowRight className="h-4 w-4" /></Link>
+          <h1 className="mb-2 text-2xl font-bold text-gray-900">{t('cart.emptyTitle')}</h1>
+          <p className="mb-8 text-gray-500">{t('cart.emptySubtitle')}</p>
+          <Link href="/boutique" className="inline-flex items-center gap-2 rounded-lg bg-primary-600 px-6 py-3 text-sm font-semibold text-white hover:bg-primary-700">{t('cart.exploreShop')} <ArrowRight className="h-4 w-4" /></Link>
         </div>
       </section>
     );
@@ -27,7 +29,7 @@ export default function CartPage() {
   return (
     <section className="py-12">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <h1 className="mb-8 text-3xl font-bold text-secondary-900">Votre panier <span className="text-lg font-normal text-gray-400">({totalItems} article{totalItems > 1 ? 's' : ''})</span></h1>
+        <h1 className="mb-8 text-3xl font-bold text-secondary-900">{t('cart.title')} <span className="text-lg font-normal text-gray-400">({totalItems} {totalItems > 1 ? t('cart.items') : t('cart.item')})</span></h1>
         <div className="grid gap-8 lg:grid-cols-3">
           <div className="space-y-4 lg:col-span-2">
             {items.map((item) => (
@@ -57,14 +59,14 @@ export default function CartPage() {
           </div>
           <div className="lg:col-span-1">
             <div className="card-premium sticky top-24 p-6">
-              <h2 className="mb-4 text-lg font-semibold text-gray-900">Récapitulatif</h2>
+              <h2 className="mb-4 text-lg font-semibold text-gray-900">{t('cart.summary')}</h2>
               <div className="space-y-3 border-b border-gray-100 pb-4">
-                <div className="flex justify-between text-sm"><span className="text-gray-500">Sous-total</span><span className="font-medium">{formatPrice(totalPrice)}</span></div>
-                <div className="flex justify-between text-sm"><span className="text-gray-500">Livraison</span><span className="font-medium">{shipping === 0 ? 'Gratuite' : formatPrice(shipping)}</span></div>
+                <div className="flex justify-between text-sm"><span className="text-gray-500">{t('cart.subtotal')}</span><span className="font-medium">{formatPrice(totalPrice)}</span></div>
+                <div className="flex justify-between text-sm"><span className="text-gray-500">{t('cart.shipping')}</span><span className="font-medium">{shipping === 0 ? t('cart.free') : formatPrice(shipping)}</span></div>
               </div>
-              <div className="flex justify-between py-4 text-lg font-bold"><span>Total</span><span>{formatPrice(totalPrice + shipping)}</span></div>
-              {shipping > 0 && <p className="mb-4 text-xs text-gray-400">Livraison gratuite dès 500 Gdes d&apos;achat</p>}
-              <Link href="/paiement"><Button fullWidth size="lg"><ArrowRight className="h-4 w-4" /> Passer commande</Button></Link>
+              <div className="flex justify-between py-4 text-lg font-bold"><span>{t('cart.total')}</span><span>{formatPrice(totalPrice + shipping)}</span></div>
+              {shipping > 0 && <p className="mb-4 text-xs text-gray-400">{t('cart.freeShippingHint')}</p>}
+              <Link href="/paiement"><Button fullWidth size="lg"><ArrowRight className="h-4 w-4" /> {t('cart.checkout')}</Button></Link>
             </div>
           </div>
         </div>
@@ -72,3 +74,4 @@ export default function CartPage() {
     </section>
   );
 }
+

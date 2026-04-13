@@ -4,8 +4,10 @@ import { useState } from 'react';
 import { Search, SlidersHorizontal } from 'lucide-react';
 import { products, categories } from '@/data/products';
 import ProductCard from '@/components/shop/ProductCard';
+import { useLanguage } from '@/lib/language-context';
 
 export default function ShopPage() {
+  const { t } = useLanguage();
   const [search, setSearch] = useState('');
   const [category, setCategory] = useState('Tous');
   const [sort, setSort] = useState('popular');
@@ -25,9 +27,9 @@ export default function ShopPage() {
       <section className="bg-gradient-to-b from-primary-50 to-white py-16">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="text-center">
-            <span className="mb-3 inline-block text-sm font-semibold uppercase tracking-wider text-primary-600">Boutique</span>
-            <h1 className="mb-4 text-4xl font-bold text-secondary-900">Pharmacie & Bien-être</h1>
-            <p className="mx-auto max-w-2xl text-gray-600">Découvrez notre sélection de produits de santé, dispositifs médicaux et compléments alimentaires de qualité professionnelle.</p>
+            <span className="mb-3 inline-block text-sm font-semibold uppercase tracking-wider text-primary-600">{t('shop.label')}</span>
+            <h1 className="mb-4 text-4xl font-bold text-secondary-900">{t('shop.title')}</h1>
+            <p className="mx-auto max-w-2xl text-gray-600">{t('shop.subtitle')}</p>
           </div>
         </div>
       </section>
@@ -36,16 +38,16 @@ export default function ShopPage() {
           <div className="mb-8 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
             <div className="relative max-w-md flex-1">
               <Search className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
-              <input type="text" value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Rechercher un produit..." maxLength={200} className="w-full rounded-xl border border-gray-200 py-3 pl-12 pr-4 text-sm focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20" />
+              <input type="text" value={search} onChange={(e) => setSearch(e.target.value)} placeholder={t('shop.searchPlaceholder')} maxLength={200} className="w-full rounded-xl border border-gray-200 py-3 pl-12 pr-4 text-sm focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20" />
             </div>
             <div className="flex flex-wrap items-center gap-3">
               <div className="flex items-center gap-2">
                 <SlidersHorizontal className="h-4 w-4 text-gray-400" />
                 <select value={sort} onChange={(e) => setSort(e.target.value)} className="rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-primary-500 focus:outline-none">
-                  <option value="popular">Popularité</option>
-                  <option value="price-asc">Prix croissant</option>
-                  <option value="price-desc">Prix décroissant</option>
-                  <option value="rating">Meilleures notes</option>
+                  <option value="popular">{t('shop.sortPopular')}</option>
+                  <option value="price-asc">{t('shop.sortPriceAsc')}</option>
+                  <option value="price-desc">{t('shop.sortPriceDesc')}</option>
+                  <option value="rating">{t('shop.sortRating')}</option>
                 </select>
               </div>
             </div>
@@ -60,10 +62,11 @@ export default function ShopPage() {
           {filtered.length > 0 ? (
             <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">{filtered.map((product) => <ProductCard key={product.id} product={product} />)}</div>
           ) : (
-            <div className="py-20 text-center"><p className="text-gray-500">Aucun produit trouvé pour votre recherche.</p></div>
+            <div className="py-20 text-center"><p className="text-gray-500">{t('shop.noResults')}</p></div>
           )}
         </div>
       </section>
     </>
   );
 }
+
