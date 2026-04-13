@@ -5,6 +5,7 @@ import Image from 'next/image';
 import { ShoppingCart, Star } from 'lucide-react';
 import { Product } from '@/types';
 import { useCart } from '@/lib/cart-context';
+import { useLanguage } from '@/lib/language-context';
 import { formatPrice } from '@/lib/utils';
 
 interface ProductCardProps {
@@ -13,6 +14,7 @@ interface ProductCardProps {
 
 export default function ProductCard({ product }: ProductCardProps) {
   const { addItem } = useCart();
+  const { t } = useLanguage();
 
   return (
     <div className="card-premium group relative flex flex-col overflow-hidden">
@@ -45,7 +47,7 @@ export default function ProductCard({ product }: ProductCardProps) {
             <Star className="h-3.5 w-3.5 fill-amber-400 text-amber-400" />
             <span className="text-xs font-medium text-gray-700">{product.rating}</span>
           </div>
-          <span className="text-xs text-gray-400">({product.reviews} avis)</span>
+          <span className="text-xs text-gray-400">({product.reviews} {t('shop.reviews')})</span>
         </div>
         <div className="mt-auto flex items-center justify-between">
           <div className="flex items-baseline gap-2">
@@ -57,7 +59,7 @@ export default function ProductCard({ product }: ProductCardProps) {
           <button
             onClick={() => addItem(product)}
             className="rounded-lg bg-primary-50 p-2 text-primary-600 transition-colors hover:bg-primary-600 hover:text-white"
-            aria-label={`Ajouter ${product.name} au panier`}
+            aria-label={`${t('shop.addToCart')} ${product.name}`}
           >
             <ShoppingCart className="h-4 w-4" />
           </button>

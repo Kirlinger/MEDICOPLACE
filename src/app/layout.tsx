@@ -4,6 +4,7 @@ import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
 import { CartProvider } from '@/lib/cart-context';
 import { AuthProvider } from '@/lib/auth-context';
+import { LanguageProvider } from '@/lib/language-context';
 
 export const metadata: Metadata = {
   title: 'MEDICOPLACE — Votre Plateforme de Santé',
@@ -22,13 +23,15 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="fr">
       <body className="min-h-screen font-sans antialiased">
-        <AuthProvider>
-          <CartProvider>
-            <Navbar />
-            <main className="pt-16 lg:pt-20">{children}</main>
-            <Footer />
-          </CartProvider>
-        </AuthProvider>
+        <LanguageProvider>
+          <AuthProvider>
+            <CartProvider>
+              <Navbar />
+              <main className="pt-16 lg:pt-20">{children}</main>
+              <Footer />
+            </CartProvider>
+          </AuthProvider>
+        </LanguageProvider>
       </body>
     </html>
   );
