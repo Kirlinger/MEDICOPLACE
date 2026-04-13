@@ -18,7 +18,13 @@ const AUTH_ERROR = 'Email ou mot de passe incorrect.';
 const DUMMY_HASH = '$2b$12$ObFvU.iDFSs4V4tJ9KnBvevHPDdIBHLvii3pASOXZjccnePMxpuzq';
 
 export async function POST(request: NextRequest) {
-  assertProductionSecrets();
+  try {
+    assertProductionSecrets();
+  } catch (err) {
+    console.error('LOGIN CONFIG ERROR:', err);
+    return safeError('Erreur de configuration du serveur.', 500);
+  }
+
   const ip = getClientIp(request);
 
   // Rate limit (strict for auth)
@@ -43,86 +49,91 @@ export async function POST(request: NextRequest) {
     return safeError(AUTH_ERROR, 401);
   }
 
-  let userId: string;
-  let passwordHash: string;
-  let role: string;
-  let firstName: string;
-  let lastName: string;
-  let phone: string;
+  try {
+    let userId: string;
+    let passwordHash: string;
+    let role: string;
+    let firstName: string;
+    let lastName: string;
+    let phone: string;
 
-  if (isDatabaseConfigured()) {
-    const supabase = getSupabaseAdmin()!;
-    const { data: user } = await supabase
-      .from('users')
-      .select('id, password_hash, role, first_name, last_name, email, phone')
-      .eq('email', email)
-      .maybeSingle();
+    if (isDatabaseConfigured()) {
+      const supabase = getSupabaseAdmin()!;
+      const { data: user } = await supabase
+        .from('users')
+        .select('id, password_hash, role, first_name, last_name, email, phone')
+        .eq('email', email)
+        .maybeSingle();
 
-    if (!user) {
-      // Constant-time: hash against a real bcrypt hash to prevent timing attacks
-      await verifyPassword(password, DUMMY_HASH);
+      if (!user) {
+        // Constant-time: hash against a real bcrypt hash to prevent timing attacks
+        await verifyPassword(password, DUMMY_HASH);
+        return safeError(AUTH_ERROR, 401);
+      }
+
+      userId = user.id;
+      passwordHash = user.password_hash;
+      role = user.role;
+      firstName = user.first_name;
+      lastName = user.last_name;
+      phone = user.phone || '';
+    } else {
+      // In-memory fallback
+      const user = memoryStore.findUserByEmail(email);
+      if (!user) {
+        await verifyPassword(password, DUMMY_HASH);
+        return safeError(AUTH_ERROR, 401);
+      }
+
+      userId = user.id;
+      passwordHash = user.password_hash;
+      role = user.role;
+      firstName = user.first_name;
+      lastName = user.last_name;
+      phone = user.phone || '';
+    }
+
+    // Verify password
+    const isValid = await verifyPassword(password, passwordHash);
+    if (!isValid) {
+      await logAuditEvent({
+        userId,
+        action: 'login_failed',
+        resource: 'auth',
+        details: `Failed login attempt for ${email}`,
+        ipAddress: ip,
+      });
       return safeError(AUTH_ERROR, 401);
     }
 
-    userId = user.id;
-    passwordHash = user.password_hash;
-    role = user.role;
-    firstName = user.first_name;
-    lastName = user.last_name;
-    phone = user.phone || '';
-  } else {
-    // In-memory fallback
-    const user = memoryStore.findUserByEmail(email);
-    if (!user) {
-      await verifyPassword(password, DUMMY_HASH);
-      return safeError(AUTH_ERROR, 401);
-    }
+    // Create session
+    const token = await createSessionToken({
+      userId,
+      role,
+      firstName,
+      lastName,
+      email,
+      phone,
+    });
+    await setSessionCookie(token);
 
-    userId = user.id;
-    passwordHash = user.password_hash;
-    role = user.role;
-    firstName = user.first_name;
-    lastName = user.last_name;
-    phone = user.phone || '';
-  }
-
-  // Verify password
-  const isValid = await verifyPassword(password, passwordHash);
-  if (!isValid) {
+    // Audit log
     await logAuditEvent({
       userId,
-      action: 'login_failed',
+      action: 'login',
       resource: 'auth',
-      details: `Failed login attempt for ${email}`,
+      details: `User logged in: ${email}`,
       ipAddress: ip,
     });
-    return safeError(AUTH_ERROR, 401);
+
+    return Response.json({
+      success: true,
+      user: { id: userId, firstName, lastName, email, phone },
+    }, {
+      headers: { 'Cache-Control': 'no-store, no-cache, must-revalidate' },
+    });
+  } catch (error) {
+    console.error('LOGIN ERROR:', error);
+    return safeError('Erreur interne lors de la connexion.', 500);
   }
-
-  // Create session
-  const token = await createSessionToken({
-    userId,
-    role,
-    firstName,
-    lastName,
-    email,
-    phone,
-  });
-  await setSessionCookie(token);
-
-  // Audit log
-  await logAuditEvent({
-    userId,
-    action: 'login',
-    resource: 'auth',
-    details: `User logged in: ${email}`,
-    ipAddress: ip,
-  });
-
-  return Response.json({
-    success: true,
-    user: { id: userId, firstName, lastName, email, phone },
-  }, {
-    headers: { 'Cache-Control': 'no-store, no-cache, must-revalidate' },
-  });
 }

@@ -11,7 +11,13 @@ import { getClientIp, applyRateLimit, requireCsrf } from '@/lib/server/api-helpe
 import { logAuditEvent } from '@/lib/server/audit-log';
 
 export async function POST(request: NextRequest) {
-  assertProductionSecrets();
+  try {
+    assertProductionSecrets();
+  } catch (err) {
+    console.error('REGISTER CONFIG ERROR:', err);
+    return safeError('Erreur de configuration du serveur.', 500);
+  }
+
   const ip = getClientIp(request);
 
   // Rate limit
@@ -44,91 +50,101 @@ export async function POST(request: NextRequest) {
   const passwordCheck = isStrongPassword(password);
   if (!passwordCheck.valid) return safeError(passwordCheck.reason || 'Mot de passe trop faible.');
 
-  // Hash password
-  const passwordHash = await hashPassword(password);
+  try {
+    // Hash password
+    const passwordHash = await hashPassword(password);
 
-  const userId = uuidv4();
-  const now = new Date().toISOString();
+    const userId = uuidv4();
+    const now = new Date().toISOString();
 
-  if (isDatabaseConfigured()) {
-    const supabase = getSupabaseAdmin()!;
+    if (isDatabaseConfigured()) {
+      const supabase = getSupabaseAdmin()!;
 
-    // Check if user exists
-    const { data: existing } = await supabase
-      .from('users')
-      .select('id')
-      .eq('email', email)
-      .maybeSingle();
+      // Check if user exists
+      const { data: existing, error: lookupError } = await supabase
+        .from('users')
+        .select('id')
+        .eq('email', email)
+        .maybeSingle();
 
-    if (existing) {
-      return safeError('Un compte existe déjà avec cet email.');
+      if (lookupError) {
+        console.error('REGISTER LOOKUP ERROR:', lookupError.message);
+        return safeError('Erreur lors de la vérification du compte.', 500);
+      }
+
+      if (existing) {
+        return safeError('Un compte existe déjà avec cet email.');
+      }
+
+      // Insert user
+      const { error: insertError } = await supabase.from('users').insert({
+        id: userId,
+        email,
+        password_hash: passwordHash,
+        first_name: firstName,
+        last_name: lastName,
+        phone,
+        role: 'user',
+        created_at: now,
+        updated_at: now,
+      });
+
+      if (insertError) {
+        console.error('REGISTER INSERT ERROR:', insertError.message);
+        return safeError('Erreur lors de la création du compte.', 500);
+      }
+    } else {
+      // In-memory fallback
+      if (memoryStore.findUserByEmail(email)) {
+        return safeError('Un compte existe déjà avec cet email.');
+      }
+
+      const newUser: InMemoryUser = {
+        id: userId,
+        email,
+        password_hash: passwordHash,
+        first_name: firstName,
+        last_name: lastName,
+        phone,
+        date_of_birth: '',
+        address: '',
+        role: 'user',
+        created_at: now,
+        updated_at: now,
+      };
+      memoryStore.users.push(newUser);
+      memoryStore.persist();
     }
 
-    // Insert user
-    const { error: insertError } = await supabase.from('users').insert({
-      id: userId,
-      email,
-      password_hash: passwordHash,
-      first_name: firstName,
-      last_name: lastName,
-      phone,
+    // Create session
+    const token = await createSessionToken({
+      userId,
       role: 'user',
-      created_at: now,
-      updated_at: now,
+      firstName,
+      lastName,
+      email,
+      phone,
+    });
+    await setSessionCookie(token);
+
+    // Audit log
+    await logAuditEvent({
+      userId,
+      action: 'register',
+      resource: 'user',
+      resourceId: userId,
+      details: `New user registered: ${email}`,
+      ipAddress: ip,
     });
 
-    if (insertError) {
-      console.error('Registration insert error:', insertError.message);
-      return safeError('Erreur lors de la création du compte.', 500);
-    }
-  } else {
-    // In-memory fallback
-    if (memoryStore.findUserByEmail(email)) {
-      return safeError('Un compte existe déjà avec cet email.');
-    }
-
-    const newUser: InMemoryUser = {
-      id: userId,
-      email,
-      password_hash: passwordHash,
-      first_name: firstName,
-      last_name: lastName,
-      phone,
-      date_of_birth: '',
-      address: '',
-      role: 'user',
-      created_at: now,
-      updated_at: now,
-    };
-    memoryStore.users.push(newUser);
-    memoryStore.persist();
+    return Response.json({
+      success: true,
+      user: { id: userId, firstName, lastName, email, phone },
+    }, {
+      headers: { 'Cache-Control': 'no-store, no-cache, must-revalidate' },
+    });
+  } catch (error) {
+    console.error('REGISTER ERROR:', error);
+    return safeError('Erreur interne lors de la création du compte.', 500);
   }
-
-  // Create session
-  const token = await createSessionToken({
-    userId,
-    role: 'user',
-    firstName,
-    lastName,
-    email,
-    phone,
-  });
-  await setSessionCookie(token);
-
-  // Audit log
-  await logAuditEvent({
-    userId,
-    action: 'register',
-    resource: 'user',
-    resourceId: userId,
-    details: `New user registered: ${email}`,
-    ipAddress: ip,
-  });
-
-  return Response.json({
-    success: true,
-    user: { id: userId, firstName, lastName, email, phone },
-  }, {
-    headers: { 'Cache-Control': 'no-store, no-cache, must-revalidate' },
-  });
 }
